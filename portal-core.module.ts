@@ -11,8 +11,10 @@ import {KeysPipe} from './uiutilities/pipes';
 
 // Services
 import { LayerHandlerService } from './service/cswrecords/layer-handler.service';
+import { FilterPanelService } from './service/filterpanel/filterpanel-service';
 import { OlMapObject } from './service/openlayermap/ol-map-object';
 import { OlMapService } from './service/openlayermap/ol-map.service';
+import { RenderStatusService } from './service/openlayermap/renderstatus/render-status.service';
 import { OlWMSService } from './service/wms/ol-wms.service';
 import { OlWFSService } from './service/wfs/ol-wfs.service';
 import { GMLParserService } from './utility/gmlparser.service';
@@ -33,7 +35,9 @@ import { GMLParserService } from './utility/gmlparser.service';
               OlWMSService,
               OlMapObject,
               OlWFSService,
-              GMLParserService
+              GMLParserService,
+              RenderStatusService,
+              FilterPanelService
               ]
 })
 

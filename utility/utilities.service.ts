@@ -4,14 +4,16 @@ import { Injectable } from '@angular/core';
 declare var jQuery: any;
 declare function unescape(s: string): string;
 
-
+/**
+ * Port over from old portal-core extjs for dealing with xml in wfs
+ */
 @Injectable()
 export class UtilitiesService {
 
     // private property
     public static _keyStr = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=';
 
-      /**
+    /**
      * Test if the object is empty
      * @method isEmpty
      * @param obj - the object to test for emptiness
@@ -30,6 +32,16 @@ export class UtilitiesService {
             }
         }
     }
+
+    /**
+     * Retrieve the key of a object
+     * @method getKey
+     * @param obj - the object to query
+     * @return string - the key of the object
+     */
+    public static getKey(options): string {
+      return Object.keys(options)[0];
+    };
 
 
     /**

@@ -1,5 +1,8 @@
 import { CSWRecordModel } from './cswrecord.model';
 
+/**
+ * A representation of a layer
+ */
 export class LayerModel {
   cswRecords: CSWRecordModel[];
   description: string;
@@ -19,4 +22,5 @@ export class LayerModel {
   singleTile: boolean;
   staticLegendUrl: boolean;
   iconUrl: string;
+  filterCollection: any;
 }
