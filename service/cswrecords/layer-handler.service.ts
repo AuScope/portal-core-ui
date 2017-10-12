@@ -1,6 +1,6 @@
 import { CSWRecordModel } from '../../model/data/cswrecord.model';
 import { Injectable, Inject } from '@angular/core';
-import {HttpClient} from '@angular/common/http';
+import {HttpClient, HttpParams} from '@angular/common/http';
 import { Observable } from 'rxjs/Observable';
 import 'rxjs/Rx';
 import {LayerModel} from '../../model/data/layer.model'
@@ -39,12 +39,46 @@ export class LayerHandlerService {
               // VT: attempted to cast the object into a typescript class however it doesn't seem like its possible
               // all examples points to casting from json to interface but not object to interface.
               item.expanded = false;
+              item.hide = false;
               me.layerRecord[item.group].push(item);
             });
             return me.layerRecord;
         });
     }
   }
+
+  /**
+   * Retrive the  csw record located at the wms  serviceurl endpoint.
+   * @Return a layer with the retrieved cswrecord wraped in a layer model.
+   */
+  public getCustomLayerRecord(serviceUrl: string): Observable<any> {
+    const me = this;
+    const httpParams = new HttpParams().set('serviceUrl', serviceUrl);
+
+    return this.http.get(environment.getCustomLayers, {
+      params: httpParams
+    }).map(response => {
+      if (response['success'] === false) {
+        return null;
+      }
+      const cswRecord = response['data'];
+      const itemLayers = [];
+      itemLayers['Results'] = [];
+      cswRecord.forEach(function(item, i, ar) {
+        const itemLayer = new LayerModel();
+        itemLayer.cswRecords = response['data'];
+        itemLayer['expanded'] = false;
+        itemLayer.id = serviceUrl;
+        itemLayer.description = item.description;
+        itemLayer.hidden = false;
+        itemLayer.layerMode = 'NA';
+        itemLayer.name = item.name;
+        itemLayers['Results'].push(itemLayer);
+      });
+      return itemLayers;
+    });
+  }
+
 
   /**
    * Check if layer contains wms records
