@@ -86,10 +86,17 @@ export class StatusMapModel {
     }
   }
 
-  public getStatusBSubject() {
+  /**
+   * Return a behavior subject so that any class listening to any status update can subscribe to the event
+   * @returns a subscriptable object
+   */
+  public getStatusBSubject(): BehaviorSubject<StatusMapModel> {
     return this._statusMap;
   }
 
+  /**
+   * reset the status object to start from fresh again
+   */
   public resetStatus() {
     this.completed = 0;
     this.total = 0;

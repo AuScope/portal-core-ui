@@ -1,6 +1,6 @@
 import { CSWRecordModel } from '../../model/data/cswrecord.model';
 import { Injectable, Inject, SkipSelf } from '@angular/core';
-import {LayerModel} from '../../model/data/layer.model'
+import {LayerModel} from '../../model/data/layer.model';
 import { OnlineResourceModel } from '../../model/data/onlineresource.model';
 import { LayerHandlerService } from '../cswrecords/layer-handler.service';
 import { OlMapObject } from '../openlayermap/ol-map-object';
@@ -9,10 +9,12 @@ import { Headers, RequestOptions } from '@angular/http';
 import olMap from 'ol/map';
 import olTile from 'ol/layer/tile';
 import olTileWMS from 'ol/source/tilewms';
+import olProj from 'ol/proj';
 import { Observable } from 'rxjs/Rx';
 import { Constants } from '../../utility/constants.service';
 import { UtilitiesService } from '../../utility/utilities.service';
 import { RenderStatusService } from '../openlayermap/renderstatus/render-status.service';
+
 
 /**
  * Use OlMapService to add layer to map. This service class adds wms layer to the map
@@ -25,11 +27,14 @@ export class OlWMSService {
   constructor(private layerHandlerService: LayerHandlerService,
     private olMapObject: OlMapObject,
     private http: HttpClient,
-    private renderStatusService: RenderStatusService
+    private renderStatusService: RenderStatusService, @Inject('env') private env
   ) {
     this.map = this.olMapObject.getMap();
   }
 
+  /**
+   * a private helper that to check of the url is too long
+   */
   private wmsUrlTooLong(sldBody: string): boolean {
     return encodeURIComponent(sldBody).length > Constants.WMSMAXURLGET;
   }
@@ -42,7 +47,8 @@ export class OlWMSService {
    */
   public getWMS1_3_0param(layer: LayerModel, onlineResource: OnlineResourceModel, param, sld_body?: string): any {
     const params = {
-      'LAYERS': onlineResource.name,
+      // VT: if the parameter contains featureType, it mean we are targeting a different featureType e.g capdf layer
+      'LAYERS': param && param.featureType ? param.featureType : onlineResource.name,
       'TILED': true,
       'DISPLAYOUTSIDEMAXEXTENT': true,
       'FORMAT': 'image/png',
@@ -68,7 +74,8 @@ export class OlWMSService {
    */
   public getWMS1_1param(layer: LayerModel, onlineResource: OnlineResourceModel, param, sld_body?: string): any {
     const params = {
-      'LAYERS': onlineResource.name,
+      // VT: if the parameter contains featureType, it mean we are targeting a different featureType e.g capdf layer
+      'LAYERS': param && param.featureType ? param.featureType : onlineResource.name,
       'TILED': true,
       'DISPLAYOUTSIDEMAXEXTENT': true,
       'FORMAT': 'image/png',
@@ -104,7 +111,7 @@ export class OlWMSService {
     let httpParams = Object.getOwnPropertyNames(param).reduce((p, key1) => p.set(key1, param[key1]), new HttpParams());
     httpParams = UtilitiesService.convertObjectToHttpParam(httpParams, param);
 
-    return this.http.get('../' + sldUrl, {
+    return this.http.get(this.env.portalBaseUrl + sldUrl, {
       responseType: 'text',
       params: httpParams
     }).map(response => {
@@ -152,10 +159,24 @@ export class OlWMSService {
           this.getWMS1_3_0param(layer, wmsOnlineResource, collatedParam, response) :
           this.getWMS1_1param(layer, wmsOnlineResource, collatedParam, response);
 
+
         let wmsTile;
+
+        let defaultExtent;
+        if (wmsOnlineResource.cswRecord.geographicElements.length > 0) {
+          const cswExtent = wmsOnlineResource.cswRecord.geographicElements[0];
+          defaultExtent = olProj.transformExtent([cswExtent.westBoundLongitude, cswExtent.southBoundLatitude,
+          cswExtent.eastBoundLongitude, cswExtent.northBoundLatitude], 'EPSG:4326', 'EPSG:3857');
+        } else {
+          defaultExtent = this.map.getView().calculateExtent(this.map.getSize());
+        }
+
+
+
+
         if (this.wmsUrlTooLong(response)) {
           wmsTile = new olTile({
-            extent: this.map.getView().calculateExtent(this.map.getSize()),
+            extent: defaultExtent,
             source: new olTileWMS({
               url: wmsOnlineResource.url,
               params: params,
@@ -168,7 +189,7 @@ export class OlWMSService {
           })
         } else {
           wmsTile = new olTile({
-            extent: this.map.getView().calculateExtent(this.map.getSize()),
+            extent: defaultExtent,
             source: new olTileWMS({
               url: wmsOnlineResource.url,
               params: params,
@@ -177,6 +198,10 @@ export class OlWMSService {
             })
           })
         }
+
+        wmsTile.sldBody = response;
+        wmsTile.onlineResource = wmsOnlineResource;
+        wmsTile.layer = layer;
 
         wmsTile.getSource().on('tileloadstart', function(event) {
           me.renderStatusService.addResource(layer, wmsOnlineResource);
@@ -195,10 +220,13 @@ export class OlWMSService {
     }
   }
 
+  /**
+   * a injected function into openlayers to proxy the url IF the url is too long
+   */
   public imagePostFunction(image, src) {
     const img = image.getImage();
       const dataEntries = src.split('&');
-      const url = '../getWMSMapViaProxy.do?';
+      const url = this.env.portalBaseUrl + 'getWMSMapViaProxy.do?';
       const params = {};
       for (let i = 0; i < dataEntries.length; i++) {
         if (i === 0) {

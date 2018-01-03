@@ -5,7 +5,7 @@ import { Observable } from 'rxjs/Observable';
 import 'rxjs/Rx';
 import {LayerModel} from '../../model/data/layer.model'
 import { OnlineResourceModel } from '../../model/data/onlineresource.model';
-import { environment } from '../../../../environments/environment';
+
 /**
  * Service class to handle jobs relating to getting csw records from the server
  *
@@ -16,20 +16,21 @@ export class LayerHandlerService {
   private layerRecord;
   private getCSWUrl;
 
-  constructor(private http: HttpClient) {
+  constructor(private http: HttpClient, @Inject('env') private env) {
     this.layerRecord = [];
 
   }
 
   /**
-   * Retrive csw records from the service and organize them by group
+   * Retrieve csw records from the service and organize them by group
+   * @returns a observable object that returns the list of csw record organized in groups
    */
   public getLayerRecord(): Observable<any> {
     const me = this;
     if (this.layerRecord.length > 0) {
         return Observable.of(this.layerRecord);
     }else {
-      return this.http.get(environment.getCSWRecordUrl)
+      return this.http.get(this.env.portalBaseUrl + this.env.getCSWRecordUrl)
         .map(response => {
             const cswRecord = response['data'];
             cswRecord.forEach(function(item, i, ar){
@@ -55,7 +56,7 @@ export class LayerHandlerService {
     const me = this;
     const httpParams = new HttpParams().set('serviceUrl', serviceUrl);
 
-    return this.http.get(environment.getCustomLayers, {
+    return this.http.get(this.env.portalBaseUrl + this.env.getCustomLayers, {
       params: httpParams
     }).map(response => {
       if (response['success'] === false) {
@@ -95,6 +96,16 @@ export class LayerHandlerService {
          }
       }
       return false;
+  }
+
+  /**
+   * Retrieve the CSW record associated with this layer
+   * @param layer the layer to query for wms records
+   * @return CSW record all the csw records
+   */
+  public getCSWRecord(layer: LayerModel): CSWRecordModel[] {
+    const cswRecords: CSWRecordModel[] = layer.cswRecords;
+    return cswRecords;
   }
 
  /**
@@ -143,6 +154,7 @@ export class LayerHandlerService {
     const uniqueURLSet = new Set<string>();
     for (const cswRecord of cswRecords) {
       for (const onlineResource of cswRecord.onlineResources) {
+        onlineResource.cswRecord = cswRecord;
         if (resourceType && onlineResource.type === resourceType) {
           if (!uniqueURLSet.has(onlineResource.url)) {
             onlineResourceResult.push(onlineResource);

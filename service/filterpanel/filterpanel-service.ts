@@ -5,6 +5,8 @@ import { Observable } from 'rxjs/Observable';
 import 'rxjs/Rx';
 import {LayerModel} from '../../model/data/layer.model'
 import { OnlineResourceModel } from '../../model/data/onlineresource.model';
+
+
 /**
  * Service class to handle jobs relating to getting csw records from the server
  *
@@ -12,14 +14,14 @@ import { OnlineResourceModel } from '../../model/data/onlineresource.model';
 @Injectable()
 export class FilterPanelService {
 
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient, @Inject('env') private env) {}
 
   /**
    * Helper service to retrieve remote options for the filter options
    */
   public getFilterRemoteParam(url: string): Observable<any> {
     switch (url) {
-      case '../getAllCommodities.do':
+      case this.env.portalBaseUrl + 'getAllCommodities.do':
         return this.getCommodity(url);
       default:
         return null;

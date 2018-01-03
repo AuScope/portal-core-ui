@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import {HttpParams} from '@angular/common/http';
-
+import * as _ from 'lodash';
 
 declare var jQuery: any;
 declare function unescape(s: string): string;
@@ -32,6 +32,15 @@ export class UtilitiesService {
                 return true;
             }
         }
+    }
+
+  public static leftPad(str, size, character) {
+        let result = String(str);
+        character = character || ' ';
+        while (result.length < size) {
+            result = character + result;
+        }
+        return result;
     }
 
     /**
@@ -75,7 +84,7 @@ export class UtilitiesService {
      * @param url - the get url string to break
      * @param options - splitArgs - {Boolean} Split comma delimited params into arrays? Default is true
      */
-    public static getUrlParameters(url: string, options: any): any {
+    public static getUrlParameters(url: string, options?: any): any {
         const localStringContain  = function(s, c){
             return s.indexOf(c) !== -1;
         };
@@ -105,8 +114,7 @@ export class UtilitiesService {
                     key = unescape(key);
                 }
 
-                // being liberal by replacing "+" with " "
-                let value: any = (keyValue[1] || '').replace(/\+/g, ' ');
+                let value: any = (keyValue[1] || '');
 
                 try {
                     value = decodeURIComponent(value);
@@ -354,10 +362,20 @@ export class UtilitiesService {
         return string;
     }
 
+    public static getUrlParameterByName(name: string, url?: string): string {
+      if (!url) {
+        url = window.location.href
+      };
+     return this.getUrlParameters(url)[name];
+    }
+
     /**
      * This utility will collate the different type of filter into a single parameter object
      */
-    public static collateParam(layer, onlineResource, param) {
+    public static collateParam(layer, onlineResource, parameter) {
+
+      let param = _.cloneDeep(parameter)
+
       if (!param) {
         param = {};
       }
@@ -384,22 +402,41 @@ export class UtilitiesService {
           param[mandatoryFilters[idx].parameter] = mandatoryFilters[idx].value;
         }
       }
+
+      for (let i = 0; i < param.optionalFilters.length; i++) {
+        if (param.optionalFilters[i].TYPE === 'OPTIONAL.PROVIDER') {
+          param.optionalFilters.splice(i, 1);
+          break;
+        }
+      }
       return param;
     };
 
-    public static convertObjectToHttpParam(httpParam: HttpParams, paramObject: object, mykey?: string): HttpParams {
+    /**
+     * angular 4 have removed the ability to simply use a javascript object as a parameter. This is a workaround to parse the
+     * filter object into a HttpParams
+     * @param httpParam the httpParam to set the parameters
+     */
+    public static convertObjectToHttpParam(httpParam: HttpParams, paramObject: object): HttpParams {
       // https://github.com/angular/angular/pull/18490 (this is needed to parse object into parameter
+      let first = true;
       for (let i = 0; i < paramObject['optionalFilters'].length; i++) {
-        if (i === 0) {
-          httpParam = httpParam.set('optionalFilters', JSON.stringify(paramObject['optionalFilters'][i]));
-        } else {
-          httpParam = httpParam.set('optionalFilters', JSON.stringify(paramObject['optionalFilters'][i]));
+        if (paramObject['optionalFilters'][i].type !== 'OPTIONAL.PROVIDER') {
+          if (first) {
+            httpParam = httpParam.set('optionalFilters', JSON.stringify(paramObject['optionalFilters'][i]));
+            first = false;
+          }else {
+            httpParam = httpParam.append('optionalFilters', JSON.stringify(paramObject['optionalFilters'][i]));
+          }
         }
-
 
       }
       return httpParam;
+    }
 
+   public static getBaseUrl(url): string {
+        const splitUrl = url.split('://');
+        return splitUrl[0] + '://' + splitUrl[1].slice(0, splitUrl[1].indexOf('/'));
     }
 
 
