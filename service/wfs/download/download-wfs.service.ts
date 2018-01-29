@@ -4,7 +4,7 @@ import { LayerHandlerService } from '../../cswrecords/layer-handler.service';
 import {HttpClient, HttpParams} from '@angular/common/http';
 import {Injectable, Inject} from '@angular/core';
 import {Headers, RequestOptions} from '@angular/http';
-import * as $ from 'jquery'
+import * as $ from 'jquery';
 import { Observable } from 'rxjs/Observable';
 
 
@@ -31,9 +31,9 @@ export class DownloadWfsService {
 
     let downloadUrl = 'getAllFeaturesInCSV.do';
     if (layer.proxyDownloadUrl && layer.proxyDownloadUrl.length > 0) {
-      downloadUrl =  layer.proxyDownloadUrl
+      downloadUrl =  layer.proxyDownloadUrl;
     } else if (layer.proxyUrl && layer.proxyUrl.length > 0) {
-      downloadUrl =  layer.proxyUrl
+      downloadUrl =  layer.proxyUrl;
     }
 
     let httpParams = new HttpParams();
@@ -46,9 +46,9 @@ export class DownloadWfsService {
         maxFeatures: 0,
         outputFormat: 'csv',
         bbox: bbox ? JSON.stringify(bbox) : ''
-      }
+      };
 
-      const serviceUrl = this.env.portalBaseUrl + downloadUrl + '?'
+      const serviceUrl = this.env.portalBaseUrl + downloadUrl + '?';
 
 
       httpParams = httpParams.append('serviceUrls', serviceUrl + $.param(filterParameters));
@@ -62,7 +62,7 @@ export class DownloadWfsService {
       return response;
     }).catch((error: Response) => {
         return Observable.throw(error);
-    })
+    });
 
   }
 }

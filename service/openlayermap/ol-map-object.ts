@@ -136,7 +136,7 @@ export class OlMapObject {
       this.activeLayer[id] = [];
       activelayers.forEach(layer => {
         this.map.removeLayer(layer);
-      })
+      });
 
       this.renderStatusService.resetLayer(id);
     }
@@ -168,7 +168,7 @@ export class OlMapObject {
       vector.set('polygonString', coordString);
       vectorBS.next(vector);
       me.map.removeInteraction(draw);
-    })
+    });
     this.map.addInteraction(draw);
     return vectorBS;
   }
@@ -202,9 +202,9 @@ export class OlMapObject {
         vectorBS.next(vector);
         me.ignoreMapClick = false;
       }, 500);
-    })
+    });
     this.map.addInteraction(draw);
-    return vectorBS
+    return vectorBS;
   }
 
   /**
@@ -296,7 +296,7 @@ export class OlMapObject {
     return {
       zoom: this.map.getView().getZoom(),
       center: this.map.getView().getCenter()
-    }
+    };
   }
 
 

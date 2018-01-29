@@ -128,9 +128,9 @@ export class SelectMapBoundingComponent implements AfterViewInit {
       setTimeout(function() {
         vectorBS.next(me.vector);
       }, 500);
-    })
+    });
     this.map.addInteraction(draw);
-    return vectorBS
+    return vectorBS;
   }
 
   private getSldBody(sldUrl: string, param?: any): Observable<any> {
@@ -138,7 +138,7 @@ export class SelectMapBoundingComponent implements AfterViewInit {
        return Observable.create(observer => {
          observer.next(null);
          observer.complete();
-       })
+       });
     }
 
 
@@ -179,10 +179,10 @@ export class SelectMapBoundingComponent implements AfterViewInit {
             serverType: 'geoserver',
             projection: 'EPSG:4326'
           })
-        })
+        });
 
         this.map.addLayer(wmsTile);
-      })
+      });
 
     }
   }
@@ -203,7 +203,7 @@ export class SelectMapBoundingComponent implements AfterViewInit {
       'VERSION': '1.3.0',
       'WIDTH': Constants.TILE_SIZE,
       'HEIGHT': Constants.TILE_SIZE
-    }
+    };
 
 
     params['sld_body'] = sld_body;
@@ -228,7 +228,7 @@ export class SelectMapBoundingComponent implements AfterViewInit {
       'VERSION': '1.1.1',
       'WIDTH': Constants.TILE_SIZE,
       'HEIGHT': Constants.TILE_SIZE
-    }
+    };
 
       params['sld_body'] = sld_body;
 

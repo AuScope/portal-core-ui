@@ -228,7 +228,7 @@ export class RickshawService {
           if (!local_depth_set.has(global_depth)) {
             data_bin[dataType][db_key].push({'x': parseFloat(global_depth), 'y': 0.0});
           }
-        })
+        });
       });
     });
 
@@ -264,13 +264,13 @@ export class RickshawService {
     const formatMetres = function(n) {
       const abs_n = Math.abs(n);
       if (abs_n > 9999) {
-        return n / 1000 + 'km'
+        return n / 1000 + 'km';
       } else if (abs_n >= 1) {
-        return n + 'm'
+        return n + 'm';
       } else if (abs_n < 1) {
-        return n.toFixed(2) + 'm'
+        return n.toFixed(2) + 'm';
       } else {
-        return ''
+        return '';
       }
     };
 

@@ -83,7 +83,7 @@ export class OlCSWService {
       geometry: new olPolygon([primitive.coords])
     });
 
-    feature.getGeometry().transform((primitive.srsName ? primitive.srsName : 'EPSG:4326'), 'EPSG:3857')
+    feature.getGeometry().transform((primitive.srsName ? primitive.srsName : 'EPSG:4326'), 'EPSG:3857');
 
     feature.setStyle([
       new olStyle({
@@ -103,7 +103,7 @@ export class OlCSWService {
     feature.cswRecord = cswRecord;
     feature.layer = layer;
 
-    (<olLayerVector>this.olMapObject.getLayerById(layer.id)[0]).getSource().addFeature(feature)
+    (<olLayerVector>this.olMapObject.getLayerById(layer.id)[0]).getSource().addFeature(feature);
 
   }
 
@@ -124,7 +124,7 @@ export class OlCSWService {
         this.olMapObject.addLayerById(markerLayer, layer.id);
     }
     const onlineResource = new OnlineResourceModel();
-    onlineResource.url = 'Not applicable, rendering from csw records'
+    onlineResource.url = 'Not applicable, rendering from csw records';
     this.renderStatusService.addResource(layer, onlineResource);
     for (const cswRecord of cswRecords) {
       // VT do some filter based on the parameter here
@@ -156,7 +156,7 @@ export class OlCSWService {
           switch (primitive.geometryType) {
             case Constants.geometryType.POINT:
               this.addPoint(layer, cswRecord, primitive);
-              break
+              break;
             case Constants.geometryType.POLYGON:
               this.addPoloygon(layer, cswRecord, primitive);
               break;

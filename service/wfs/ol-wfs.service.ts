@@ -143,7 +143,7 @@ export class OlWFSService {
           switch (primitive.geometryType) {
             case Constants.geometryType.POINT:
                this.addPoint(layer, onlineResource, primitive);
-              break
+              break;
             case Constants.geometryType.LINESTRING:
                this.addLine(primitive);
                break;
@@ -156,7 +156,7 @@ export class OlWFSService {
       },
       err =>  {
         this.renderStatusService.updateComplete(layer, onlineResource, true);
-      })
+      });
     }
   }
 

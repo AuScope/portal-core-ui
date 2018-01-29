@@ -56,7 +56,7 @@ export class OlWMSService {
       'VERSION': '1.3.0',
       'WIDTH': Constants.TILE_SIZE,
       'HEIGHT': Constants.TILE_SIZE
-    }
+    };
 
     if (sld_body && !this.wmsUrlTooLong(sld_body)) {
       params['sld_body'] = sld_body;
@@ -83,7 +83,7 @@ export class OlWMSService {
       'VERSION': '1.1.1',
       'WIDTH': Constants.TILE_SIZE,
       'HEIGHT': Constants.TILE_SIZE
-    }
+    };
     if (sld_body && !this.wmsUrlTooLong(sld_body)) {
       params['sld_body'] = sld_body;
     } else if (sld_body && this.wmsUrlTooLong(sld_body)) {
@@ -105,7 +105,7 @@ export class OlWMSService {
        return Observable.create(observer => {
          observer.next(null);
          observer.complete();
-       })
+       });
     }
 
     let httpParams = Object.getOwnPropertyNames(param).reduce((p, key1) => p.set(key1, param[key1]), new HttpParams());
@@ -131,15 +131,15 @@ export class OlWMSService {
     if (layer.proxyStyleUrl) {
       let httpParams = Object.getOwnPropertyNames(param).reduce((p, key1) => p.set(key1, param[key1]), new HttpParams());
       httpParams = UtilitiesService.convertObjectToHttpParam(httpParams, param);
-   
-      return '/' + layer.proxyStyleUrl + '?' + httpParams.toString(); 
+
+      return '/' + layer.proxyStyleUrl + '?' + httpParams.toString();
     } else {
       return null;
     }
 
 
 
-  };
+  }
 
   /**
    * Add a wms layer to the map
@@ -192,7 +192,7 @@ export class OlWMSService {
                 me.imagePostFunction(image, src);
               }
             })
-          })
+          });
         } else {
           wmsTile = new olTile({
             extent: defaultExtent,
@@ -202,7 +202,7 @@ export class OlWMSService {
               serverType: 'geoserver',
               projection: 'EPSG:4326'
             })
-          })
+          });
         }
 
         wmsTile.sldBody = response;
@@ -219,10 +219,10 @@ export class OlWMSService {
 
         wmsTile.getSource().on('tileloaderror', function(event) {
           me.renderStatusService.updateComplete(layer, wmsOnlineResource, true);
-        })
+        });
 
         this.olMapObject.addLayerById(wmsTile, layer.id);
-      })
+      });
     }
   }
 

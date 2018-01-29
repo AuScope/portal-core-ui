@@ -13,7 +13,7 @@ declare var LZMA: any;
 @Injectable()
 export class ManageStateService {
 
-  private state: any = {}
+  private state: any = {};
   private compressedLink: string;
   private unCompressedStringCache: any;
 
@@ -29,15 +29,15 @@ export class ManageStateService {
    */
   public addLayer(layerid: string, filterCollection: any, optionalFilters: any) {
     if (!filterCollection) {
-      this.state[layerid] = {}
+      this.state[layerid] = {};
       return;
     }
-    const clonedFilterCollection = _.cloneDeep(filterCollection)
+    const clonedFilterCollection = _.cloneDeep(filterCollection);
     clonedFilterCollection['optionalFilters'] = [];
     this.state[layerid] = {
       filterCollection: filterCollection,
       optionalFilters: optionalFilters
-    }
+    };
   }
 
   /**
@@ -52,7 +52,7 @@ export class ManageStateService {
     state[layerid] = {
       filterCollection: filterCollection,
       optionalFilters: optionalFilters
-    }
+    };
     return state;
   }
 
