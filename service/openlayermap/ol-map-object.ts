@@ -40,6 +40,7 @@ export class OlMapObject {
     });
     this.activeLayer = {};
     this.map = new olMap({
+      controls: [],
       layers: [osm_layer],
       view: new olView({
         center: Constants.CENTRE_COORD,
