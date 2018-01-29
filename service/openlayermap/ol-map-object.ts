@@ -9,8 +9,6 @@ import olView from 'ol/view';
 import olLayer from 'ol/layer/layer';
 import olSourceVector from 'ol/source/vector';
 import olLayerVector from 'ol/layer/vector';
-import olControlMousePosition from 'ol/control/mouseposition';
-import olCoordinate from 'ol/coordinate';
 import olDraw from 'ol/interaction/draw';
 import olControl from 'ol/control';
 import olStyleStyle from 'ol/style/style';
@@ -37,23 +35,11 @@ export class OlMapObject {
 
   constructor(private renderStatusService: RenderStatusService) {
 
-    const mousePositionControl = new olControlMousePosition({
-      coordinateFormat: olCoordinate.createStringXY(4),
-      projection: 'EPSG:4326',
-      target: document.getElementById('mouse-position'),
-      undefinedHTML: 'Mouse out of range'
-    });
-
     const osm_layer: any = new olTile({
       source: new olOSM()
     });
     this.activeLayer = {};
     this.map = new olMap({
-      controls: olControl.defaults({
-          attributionOptions: ({
-            collapsible: false
-          })
-        }).extend([mousePositionControl]),
       layers: [osm_layer],
       view: new olView({
         center: Constants.CENTRE_COORD,
@@ -73,6 +59,10 @@ export class OlMapObject {
       }
     });
 
+  }
+
+  public addControlToMap(control: olControl) {
+    this.map.addControl(control);
   }
 
   /**
