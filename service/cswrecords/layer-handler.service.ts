@@ -5,6 +5,7 @@ import { Observable } from 'rxjs/Observable';
 import 'rxjs/Rx';
 import {LayerModel} from '../../model/data/layer.model'
 import { OnlineResourceModel } from '../../model/data/onlineresource.model';
+import { Constants } from '../../utility/constants.service';
 
 /**
  * Service class to handle jobs relating to getting csw records from the server
@@ -113,7 +114,15 @@ export class LayerHandlerService {
    * @param layer the layer to query for wms records
    */
   public getWMSResource (layer: LayerModel): OnlineResourceModel[] {
-       return this.getOnlineResources(layer, 'WMS')
+       return this.getOnlineResources(layer, Constants.resourceType.WMS)
+  }
+
+   /**
+   * Search and retrieve only WCS records
+   * @param layer the layer to query for wms records
+   */
+  public getWCSResource (layer: LayerModel): OnlineResourceModel[] {
+       return this.getOnlineResources(layer, Constants.resourceType.WCS)
   }
 
   /**
@@ -125,7 +134,24 @@ export class LayerHandlerService {
      const cswRecords: CSWRecordModel[] = layer.cswRecords;
       for (const cswRecord of cswRecords) {
          for (const onlineResource of cswRecord.onlineResources){
-           if (onlineResource.type === 'WFS') {
+           if (onlineResource.type === Constants.resourceType.WFS) {
+             return true;
+           }
+         }
+      }
+      return false;
+  }
+
+   /**
+   * Check if layer contains wcs records
+   * @param layer the layer to query for wcs records
+   * @return true if wcs resource exists
+   */
+  public containsWCS(layer: LayerModel): boolean {
+     const cswRecords: CSWRecordModel[] = layer.cswRecords;
+      for (const cswRecord of cswRecords) {
+         for (const onlineResource of cswRecord.onlineResources){
+           if (onlineResource.type === Constants.resourceType.WCS) {
              return true;
            }
          }
@@ -138,7 +164,7 @@ export class LayerHandlerService {
    * @param layer the layer to query for wfs records
    */
   public getWFSResource (layer: LayerModel): OnlineResourceModel[] {
-    return this.getOnlineResources(layer, 'WFS')
+    return this.getOnlineResources(layer, Constants.resourceType.WFS)
   }
 
   /**

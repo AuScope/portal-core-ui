@@ -129,10 +129,16 @@ export class OlWMSService {
      */
   public getSldUrl(layer: LayerModel, onlineResource: OnlineResourceModel, param) {
     if (layer.proxyStyleUrl) {
-      return '/' + layer.proxyStyleUrl + '?' + $.param(param);
+      let httpParams = Object.getOwnPropertyNames(param).reduce((p, key1) => p.set(key1, param[key1]), new HttpParams());
+      httpParams = UtilitiesService.convertObjectToHttpParam(httpParams, param);
+   
+      return '/' + layer.proxyStyleUrl + '?' + httpParams.toString(); 
     } else {
       return null;
     }
+
+
+
   };
 
   /**

@@ -22,6 +22,7 @@ import { GMLParserService } from './utility/gmlparser.service';
 import { LegendService } from './service/wms/legend.service';
 import { NotificationService } from './service/toppanel/notification.service';
 import { OlCSWService } from './service/wcsw/ol-csw.service';
+import { DownloadWcsService } from './service/wcs/download/download-wcs.service';
 import { QueryWMSService} from './service/wms/query-wms.service';
 import { QueryWFSService} from './service/wfs/query-wfs.service';
 import {NgSelectizeModule} from 'ng-selectize';
@@ -57,6 +58,7 @@ import { SelectMapBoundingComponent } from './widget/selectmap.bounding';
     OlMapObject,
     OlWFSService,
     DownloadWfsService,
+    DownloadWcsService,
     GMLParserService,
     RenderStatusService,
     FilterPanelService,

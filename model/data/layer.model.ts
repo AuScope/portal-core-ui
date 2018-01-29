@@ -23,4 +23,5 @@ export class LayerModel {
   staticLegendUrl: boolean;
   iconUrl: string;
   filterCollection: any;
+  nagiosFailingHosts: string[];
 }

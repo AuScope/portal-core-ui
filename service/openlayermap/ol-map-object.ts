@@ -18,10 +18,10 @@ import olStyleCircle from 'ol/style/circle';
 import olStyleFill from 'ol/style/fill';
 import olStyleStroke from 'ol/style/stroke';
 import olGeomPoint from 'ol/geom/point';
-import olProj from 'ol/proj';
 import olFeature from 'ol/feature';
 import olEasing from 'ol/easing';
 import olObservable from 'ol/observable';
+import { Subject } from 'rxjs/Subject';
 import {BehaviorSubject} from 'rxjs/BehaviorSubject';
 
 
@@ -30,7 +30,6 @@ import {BehaviorSubject} from 'rxjs/BehaviorSubject';
  */
 @Injectable()
 export class OlMapObject {
-
   private map: olMap;
   private activeLayer: {};
   private clickHandlerList: ((p: any) => void )[] = [];
@@ -73,6 +72,7 @@ export class OlMapObject {
         clickHandler(pixel);
       }
     });
+
   }
 
   /**
@@ -143,11 +143,41 @@ export class OlMapObject {
 
   }
 
+  /**
+  * Method for drawing a polygon shape on the map. e.g selecting a polygon bounding box on the map
+  * @returns a observable object that triggers an event when the user complete the drawing
+  */
+  public drawPolygon(): BehaviorSubject<String> {
+    this.ignoreMapClick = true;
+    const source = new olSourceVector({ wrapX: false });
+
+    const vector = new olLayerVector({
+      source: source
+    });
+    const vectorBS = new BehaviorSubject<olLayerVector>(vector);
+
+    this.map.addLayer(vector);
+    const draw = new olDraw({
+      source: source,
+      type: /** @type {ol.geom.GeometryType} */ ('Polygon')
+    });
+    const me = this;
+    draw.on('drawend', function (e) {
+      const coords = e.feature.getGeometry().getCoordinates()[0];
+      const coordString = coords.join(' ');
+      vector.set('polygonString', coordString);
+      vectorBS.next(vector);
+      me.map.removeInteraction(draw);
+    })
+    this.map.addInteraction(draw);
+    return vectorBS;
+  }
+
  /**
  * Method for drawing a box on the map. e.g selecting a bounding box on the map
  * @returns a observable object that triggers an event when the user complete the drawing
  */
-  public drawBox(): BehaviorSubject<olLayerVector> {
+  public drawBox(): Subject<olLayerVector> {
     this.ignoreMapClick = true;
     const source = new olSourceVector({wrapX: false});
 
@@ -155,7 +185,7 @@ export class OlMapObject {
       source: source
     });
 
-    const vectorBS = new BehaviorSubject<olLayerVector>(vector);
+    const vectorBS = new Subject<olLayerVector>();
 
 
     this.map.addLayer(vector);

@@ -17,6 +17,7 @@ import { OlCSWService } from '../wcsw/ol-csw.service';
 import { OlWFSService } from '../wfs/ol-wfs.service';
 import { OlMapObject } from './ol-map-object';
 import { OlWMSService } from '../wms/ol-wms.service';
+import { Subject } from 'rxjs/Subject';
 
 
 
@@ -155,7 +156,7 @@ export class OlMapService {
    * DrawBound
    * @returns a observable object that triggers an event when the user have completed the task
    */
-  public drawBound(): BehaviorSubject<olLayerVector> {
+  public drawBound(): Subject<olLayerVector> {
     return this.olMapObject.drawBox();
   }
 
@@ -166,6 +167,14 @@ export class OlMapService {
   public drawDot(coord): olLayerVector {
     return this.olMapObject.drawDot(coord);
   }
+
+    /**
+    * Method for drawing a polygon on the map.
+    * @returns the polygon coordinates string BS on which the polygon is drawn on.
+    */
+    public drawPolygon(): BehaviorSubject<olLayerVector> {
+      return this.olMapObject.drawPolygon();
+    }
 
   /**
    * remove a vector layer from the map
