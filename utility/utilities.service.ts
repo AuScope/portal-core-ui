@@ -1,8 +1,8 @@
 import { Injectable } from '@angular/core';
 import {HttpParams} from '@angular/common/http';
 import * as _ from 'lodash';
+import * as $ from 'jquery';
 
-declare var jQuery: any;
 declare function unescape(s: string): string;
 
 /**
@@ -24,7 +24,7 @@ export class UtilitiesService {
         if (obj instanceof Array || (typeof obj === 'string')) {
             return obj.length === 0;
         } else if (typeof obj === 'object') {
-            return jQuery.isEmptyObject(obj);
+            return $.isEmptyObject(obj);
         } else {
             if (obj) {
                 return false;
@@ -378,6 +378,9 @@ export class UtilitiesService {
 
       if (!param) {
         param = {};
+      }
+      if (UtilitiesService.isEmpty(param)) {
+        return param;
       }
       // VT: hiddenParams- this is to append any fix parameter mainly for legacy reason in NVCL layer to set onlyHylogger to true
       if (layer.filterCollection) {

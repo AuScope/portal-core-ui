@@ -1,4 +1,5 @@
 
+import { CSWRecordModel } from '../../model/data/cswrecord.model';
 import { Injectable, Inject } from '@angular/core';
 import olLayerVector from 'ol/layer/vector';
 import olLayer from 'ol/layer/layer';
@@ -111,7 +112,7 @@ export class OlMapService {
    public addLayer(layer: LayerModel, param: any): void {
      this.olMapObject.removeLayerById(layer.id);
      delete this.layerModelList[layer.id];
-     if (this.env.cswrenderer.includes(layer.id)) {
+     if (this.env.cswrenderer && this.env.cswrenderer.includes(layer.id)) {
        this.olCSWService.addLayer(layer, param);
        this.layerModelList[layer.id] = layer;
      } else if (this.layerHandlerService.containsWMS(layer)) {
@@ -121,6 +122,22 @@ export class OlMapService {
        this.olWFSService.addLayer(layer, param);
        this.layerModelList[layer.id] = layer;
      }
+   }
+
+  /**
+   * Add layer to the map. taking a short cut by wrapping the csw in a layerModel
+   * @param layer the layer to add to the map
+   */
+   public addCSWRecord(cswRecord: CSWRecordModel): void {
+        const itemLayer = new LayerModel();
+        itemLayer.cswRecords = [cswRecord];
+        itemLayer['expanded'] = false;
+        itemLayer.id = cswRecord.id;
+        itemLayer.description = cswRecord.description;
+        itemLayer.hidden = false;
+        itemLayer.layerMode = 'NA';
+        itemLayer.name = cswRecord.name;
+       this.addLayer(itemLayer, {});
    }
 
   /**
