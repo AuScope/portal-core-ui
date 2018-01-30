@@ -26,6 +26,6 @@ export class NotificationService {
         (error: Response) => {
           return Observable.throw(error);
         }
-      )
+      );
     }
 }

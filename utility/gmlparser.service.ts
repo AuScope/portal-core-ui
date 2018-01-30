@@ -255,7 +255,7 @@ export class GMLParserService {
         if (UtilitiesService.isEmpty(featureMembers)) {
             featureMembers = SimpleXMLService.getMatchingChildNodes(wfsFeatureCollection[0], null, 'featureMember');
             features = featureMembers;
-        }else {
+        } else {
             features = featureMembers[0].childNodes;
         }
         if (UtilitiesService.isEmpty(featureMembers)) {

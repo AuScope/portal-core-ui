@@ -58,7 +58,7 @@ export class OlWFSService {
       }).map(response => {
         return response['data'];
       });
-    }else {
+    } else {
       return this.http.get(this.env.portalBaseUrl + 'getAllFeatures.do', {
         params: httpParams
       }).map(response => {
@@ -128,7 +128,7 @@ export class OlWFSService {
         this.olMapObject.addLayerById(markerLayer, layer.id);
     }
 
-    for (const onlineResource of wfsOnlineResources){
+    for (const onlineResource of wfsOnlineResources) {
       if (UtilitiesService.filterProviderSkip(param.optionalFilters, onlineResource.url)) {
         this.renderStatusService.skip(layer, onlineResource);
         continue;
@@ -139,7 +139,7 @@ export class OlWFSService {
         this.renderStatusService.updateComplete(layer, onlineResource);
         const rootNode = this.gmlParserService.getRootNode(response.gml);
         const primitives = this.gmlParserService.makePrimitives(rootNode);
-        for (const primitive of primitives){
+        for (const primitive of primitives) {
           switch (primitive.geometryType) {
             case Constants.geometryType.POINT:
                this.addPoint(layer, onlineResource, primitive);

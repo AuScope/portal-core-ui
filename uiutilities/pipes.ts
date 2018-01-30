@@ -29,7 +29,7 @@ export class QuerierFeatureSearchPipe implements PipeTransform {
           }
         }
       });
-    }else {
+    } else {
       return value;
     }
   }

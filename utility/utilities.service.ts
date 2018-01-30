@@ -23,12 +23,12 @@ export class UtilitiesService {
     public static isEmpty(obj: any): boolean {
         if (obj instanceof Array || (typeof obj === 'string')) {
             return obj.length === 0;
-        }else if (typeof obj === 'object') {
+        } else if (typeof obj === 'object') {
             return jQuery.isEmptyObject(obj);
-        }else {
+        } else {
             if (obj) {
                 return false;
-            }else {
+            } else {
                 return true;
             }
         }
@@ -51,7 +51,7 @@ export class UtilitiesService {
      */
     public static getKey(options): string {
       return Object.keys(options)[0];
-    };
+    }
 
     /**
      * Retrieve the first value of a object
@@ -63,7 +63,7 @@ export class UtilitiesService {
       for (const key in options) {
         return options[key];
       }
-    };
+    }
 
 
 
@@ -85,7 +85,7 @@ export class UtilitiesService {
      * @param options - splitArgs - {Boolean} Split comma delimited params into arrays? Default is true
      */
     public static getUrlParameters(url: string, options?: any): any {
-        const localStringContain  = function(s, c){
+        const localStringContain  = function(s, c) {
             return s.indexOf(c) !== -1;
         };
         options = options || {};
@@ -202,7 +202,7 @@ export class UtilitiesService {
 
         if (containProviderFilter && !urlMatch) {
             return true;
-        }else {
+        } else {
             return false;
         }
 
@@ -364,8 +364,8 @@ export class UtilitiesService {
 
     public static getUrlParameterByName(name: string, url?: string): string {
       if (!url) {
-        url = window.location.href
-      };
+        url = window.location.href;
+      }
      return this.getUrlParameters(url)[name];
     }
 
@@ -374,7 +374,7 @@ export class UtilitiesService {
      */
     public static collateParam(layer, onlineResource, parameter) {
 
-      let param = _.cloneDeep(parameter)
+      let param = _.cloneDeep(parameter);
 
       if (!param) {
         param = {};
@@ -410,7 +410,7 @@ export class UtilitiesService {
         }
       }
       return param;
-    };
+    }
 
     /**
      * angular 4 have removed the ability to simply use a javascript object as a parameter. This is a workaround to parse the
@@ -425,7 +425,7 @@ export class UtilitiesService {
           if (first) {
             httpParam = httpParam.set('optionalFilters', JSON.stringify(paramObject['optionalFilters'][i]));
             first = false;
-          }else {
+          } else {
             httpParam = httpParam.append('optionalFilters', JSON.stringify(paramObject['optionalFilters'][i]));
           }
         }

@@ -3,7 +3,7 @@ import { Injectable, Inject } from '@angular/core';
 import {HttpClient} from '@angular/common/http';
 import { Observable } from 'rxjs/Observable';
 import 'rxjs/Rx';
-import {LayerModel} from '../../model/data/layer.model'
+import {LayerModel} from '../../model/data/layer.model';
 import { OnlineResourceModel } from '../../model/data/onlineresource.model';
 
 

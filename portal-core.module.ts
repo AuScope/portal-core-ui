@@ -4,8 +4,7 @@ import { FormsModule } from '@angular/forms';
 import {HttpModule} from '@angular/http';
 import { BrowserModule } from '@angular/platform-browser';
 
-// Utilities
-import {KeysPipe, QuerierFeatureSearchPipe, TrustResourceUrlPipe, TrustResourceHtmlPipe} from './uiutilities/pipes';
+
 
 
 // Services
@@ -36,10 +35,6 @@ import { SelectMapBoundingComponent } from './widget/selectmap.bounding';
 
 @NgModule({
   declarations: [
-    KeysPipe,
-    QuerierFeatureSearchPipe,
-    TrustResourceUrlPipe,
-    TrustResourceHtmlPipe,
     ImgLoadingDirective,
     StopPropagationDirective,
     SelectMapBoundingComponent
@@ -51,7 +46,7 @@ import { SelectMapBoundingComponent } from './widget/selectmap.bounding';
     HttpModule,
     NgSelectizeModule
   ],
-  exports: [KeysPipe, QuerierFeatureSearchPipe, TrustResourceUrlPipe, TrustResourceHtmlPipe, ImgLoadingDirective, StopPropagationDirective,
+  exports: [ImgLoadingDirective, StopPropagationDirective,
     HttpClientModule, BrowserModule, FormsModule, HttpModule, NgSelectizeModule, SelectMapBoundingComponent],
   providers: [LayerHandlerService,
     OlWMSService,

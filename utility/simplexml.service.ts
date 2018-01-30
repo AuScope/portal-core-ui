@@ -18,7 +18,7 @@ export class SimpleXMLService {
              XML_NODE_ELEMENT : 1,
              XML_NODE_ATTRIBUTE : 2,
              XML_NODE_TEXT : 3
-    }
+    };
 
     // Public Static functions
     public static evaluateXPathString(domNode: any, xPath: string): string {
@@ -65,7 +65,7 @@ export class SimpleXMLService {
                     default:
                         throw new Error('Unrecognised resultType');
                 }
-            };
+            }
 
         } else {
             // This gets us a list of dom nodes
@@ -323,7 +323,7 @@ export class SimpleXMLService {
                const displayStr = ' ';
 
              }
-             return docs
+             return docs;
            }
          }
        } else {
