@@ -28,6 +28,7 @@ import { Subject } from 'rxjs/Subject';
 @Injectable()
 export class OlMapService {
 
+   // VT: a storage to keep track of the layers that have been added to the map. This is use to handle click events.
    private layerModelList: { [key: string]: LayerModel; } = {};
 
    private clickedLayerListBS = new BehaviorSubject<any>({});
@@ -53,6 +54,7 @@ export class OlMapService {
     * @param pixel coordinates of clicked on pixel (units: pixels)
     */
    public mapClickHandler(pixel: number[]) {
+      try {
            // Convert pixel coords to map coords
            const map = this.olMapObject.getMap();
            const clickCoord = map.getCoordinateFromPixel(pixel);
@@ -100,7 +102,9 @@ export class OlMapService {
              pixel: pixel,
              clickCoord: clickCoord
            });
-
+      } catch (error) {
+        throw error;
+      }
    }
 
 
@@ -121,7 +125,17 @@ export class OlMapService {
      } else if (this.layerHandlerService.containsWFS(layer)) {
        this.olWFSService.addLayer(layer, param);
        this.layerModelList[layer.id] = layer;
+     } else {
+       throw new Error('No Suitable service found');
      }
+   }
+
+   /**
+    *  In the event we have custom layer that is handled outside olMapService, we will want to register that layer here so that
+    *  it can be handled by the clicked event handler.
+    */
+   public appendToLayerModelList(layer) {
+     this.layerModelList[layer.id] = layer;
    }
 
   /**

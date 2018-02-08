@@ -68,7 +68,7 @@ export class LayerHandlerService {
       itemLayers['Results'] = [];
       cswRecord.forEach(function(item, i, ar) {
         const itemLayer = new LayerModel();
-        itemLayer.cswRecords = response['data'];
+        itemLayer.cswRecords = item;
         itemLayer['expanded'] = false;
         itemLayer.id = serviceUrl;
         itemLayer.description = item.description;

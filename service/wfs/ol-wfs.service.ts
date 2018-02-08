@@ -71,6 +71,28 @@ export class OlWFSService {
     }
   }
 
+  private getRandomPaddle(): string {
+    const paddlesList = ['http://maps.google.com/mapfiles/kml/paddle/blu-blank.png',
+      'http://maps.google.com/mapfiles/kml/paddle/blu-circle.png',
+      'http://maps.google.com/mapfiles/kml/paddle/blu-diamond.png',
+      'http://maps.google.com/mapfiles/kml/paddle/grn-blank.png',
+      'http://maps.google.com/mapfiles/kml/paddle/grn-diamond.png',
+      'http://maps.google.com/mapfiles/kml/paddle/ltblu-blank.png',
+      'http://maps.google.com/mapfiles/kml/paddle/ltblu-diamond.png',
+      'http://maps.google.com/mapfiles/kml/paddle/pink-blank.png',
+      'http://maps.google.com/mapfiles/kml/paddle/pink-square.png',
+      'http://maps.google.com/mapfiles/kml/paddle/purple-square.png',
+      'http://maps.google.com/mapfiles/kml/paddle/red-diamond.png',
+      'http://maps.google.com/mapfiles/kml/paddle/red-stars.png',
+      'http://maps.google.com/mapfiles/kml/paddle/wht-square.png',
+      'http://maps.google.com/mapfiles/kml/paddle/ylw-blank.png',
+      'http://maps.google.com/mapfiles/kml/paddle/ylw-diamond.png',
+      'http://maps.google.com/mapfiles/kml/paddle/orange-blank.png',
+      'http://maps.google.com/mapfiles/kml/paddle/purple-circle.png'];
+    const random = Math.floor(Math.random() * paddlesList.length);
+    return paddlesList[random];
+  }
+
   /**
    * Add geometry type point to the map
    * @param layer the layer where this point derived from
@@ -139,6 +161,9 @@ export class OlWFSService {
         this.renderStatusService.updateComplete(layer, onlineResource);
         const rootNode = this.gmlParserService.getRootNode(response.gml);
         const primitives = this.gmlParserService.makePrimitives(rootNode);
+        if (!layer.iconUrl) {
+          layer.iconUrl = this.getRandomPaddle();
+        }
         for (const primitive of primitives) {
           switch (primitive.geometryType) {
             case Constants.geometryType.POINT:
@@ -158,10 +183,6 @@ export class OlWFSService {
         this.renderStatusService.updateComplete(layer, onlineResource, true);
       });
     }
-  }
-
-  public addCSWRecord(cswRecord: CSWRecordModel) {
-
   }
 
 

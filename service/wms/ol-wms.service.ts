@@ -226,6 +226,8 @@ export class OlWMSService {
     }
   }
 
+
+
   /**
    * a injected function into openlayers to proxy the url IF the url is too long
    */
@@ -256,10 +258,6 @@ export class OlWMSService {
         }
       }
       img.src = url + $.param(params);
-
-  }
-
-  public addCSWRecord(cswRecord: CSWRecordModel) {
 
   }
 
