@@ -174,6 +174,16 @@ export class OlMapService {
       }
       return null;
   }
+  
+  /**
+   * Check if the layer denoted by layerId has been added to the map
+   * @param layerId the ID of the layer to check for
+   */
+  public layerExists(layerId: string): boolean {
+    if (layerId in this.layerModelList)
+      return true;
+    else return false;
+  }
 
   /**
    * Fit the map to the extent that is provided
@@ -199,13 +209,13 @@ export class OlMapService {
     return this.olMapObject.drawDot(coord);
   }
 
-    /**
-    * Method for drawing a polygon on the map.
-    * @returns the polygon coordinates string BS on which the polygon is drawn on.
-    */
-    public drawPolygon(): BehaviorSubject<olLayerVector> {
-      return this.olMapObject.drawPolygon();
-    }
+  /**
+  * Method for drawing a polygon on the map.
+  * @returns the polygon coordinates string BS on which the polygon is drawn on.
+  */
+  public drawPolygon(): BehaviorSubject<olLayerVector> {
+    return this.olMapObject.drawPolygon();
+  }
 
   /**
    * remove a vector layer from the map
@@ -214,6 +224,22 @@ export class OlMapService {
   public removeVector(vector: olLayerVector) {
     this.olMapObject.removeVector(vector);
   }
+  
+  /**
+   * Return the extent of the overall map
+   * @returns the map extent
+   */
+  getMapExtent(): olExtent {
+      return this.olMapObject.getMapExtent();
+  }
 
+
+  /**
+   * Draw an extent on the map object
+   * @param extent the extent to display on the map
+   */
+  public displayExtent(extent: olExtent) {
+      this.olMapObject.displayExtent(extent);
+  }
 
 }

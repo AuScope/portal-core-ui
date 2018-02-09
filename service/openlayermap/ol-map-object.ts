@@ -271,6 +271,33 @@ export class OlMapObject {
 
     return vector;
   }
+  
+  /**
+   * Return the extent of the entire map
+   * @returns an olExtent object representing the bounds of the map
+   */
+  getMapExtent(): olExtent {
+    return this.map.getView().calculateExtent(this.map.getSize());
+  }
+
+  /**
+   * Display an extent for 3 seconds
+   * @param extent the olExtent to display on the map
+   */
+  displayExtent(extent: olExtent) {
+    const poly: olGeomPolygon = olGeomPolygon.fromExtent(extent);
+    const feature: olFeature = new olFeature(poly);
+    const source = new olSourceVector({wrapX: false});
+    source.addFeature(feature);
+    // TODO: Styling
+    let vector = new olLayerVector({
+      source: source
+    });
+    this.map.addLayer(vector);
+    setTimeout(() => {
+      this.removeVector(vector);
+    }, 3000);
+  }
 
   /**
    * Remove a vector from the map
