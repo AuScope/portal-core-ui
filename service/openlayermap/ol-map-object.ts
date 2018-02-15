@@ -135,6 +135,19 @@ export class OlMapObject {
     }
 
   }
+  
+  /*
+   *
+   */
+  public setLayerVisibility(layerId: string, visible: boolean) {
+    if (this.getLayerById(layerId) != null) {
+        let layers: [olLayer] = this.getLayerById(layerId);
+        for(let layer of layers) {
+            layer.setVisible(visible);
+        }
+    }
+  }
+  
 
   /**
   * Method for drawing a polygon shape on the map. e.g selecting a polygon bounding box on the map

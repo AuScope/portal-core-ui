@@ -185,7 +185,23 @@ export class OlMapService {
       return true;
     else return false;
   }
+  
+  /*
+   *
+   */
+  public setLayerVisibility(layerId: string, visible: boolean) {
+    this.layerModelList[layerId].hidden = !visible;
+    this.olMapObject.setLayerVisibility(layerId, visible);
+  }
 
+  /*
+   *
+   */
+  public getLayers(): { [id: string]: [olLayer] } {
+      return this.olMapObject.getLayers();
+  }
+ 
+  
   /**
    * Fit the map to the extent that is provided
    * @param extent An array of numbers representing an extent: [minx, miny, maxx, maxy]
