@@ -126,10 +126,10 @@ export class OlMapObject {
   public removeLayerById(id: string) {
     const activelayers = this.getLayerById(id);
     if (activelayers) {
-      this.activeLayer[id] = [];
       activelayers.forEach(layer => {
         this.map.removeLayer(layer);
       });
+      delete this.activeLayer[id];
 
       this.renderStatusService.resetLayer(id);
     }
