@@ -40,7 +40,6 @@ export class QueryWMSService {
     formdata = formdata.append('HEIGHT', size[1]);
     formdata = formdata.append('version', onlineResource.version);
 
-
     if (sldBody) {
       formdata = formdata.append('SLD_BODY', sldBody);
       formdata = formdata.append('postMethod', 'true');

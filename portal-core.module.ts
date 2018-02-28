@@ -12,6 +12,7 @@ import { LayerHandlerService } from './service/cswrecords/layer-handler.service'
 import { FilterPanelService } from './service/filterpanel/filterpanel-service';
 import { OlMapObject } from './service/openlayermap/ol-map-object';
 import { OlMapService } from './service/openlayermap/ol-map.service';
+import { OlClipboardService } from './service/openlayermap/ol-clipboard.service';
 import { RenderStatusService } from './service/openlayermap/renderstatus/render-status.service';
 import { ManageStateService } from './service/permanentlink/manage-state.service';
 import { DownloadWfsService } from './service/wfs/download/download-wfs.service';
@@ -73,6 +74,7 @@ export class PortalCoreModule {
     return {
       ngModule: PortalCoreModule,
       providers: [
+        OlClipboardService,
         OlMapService,
         {provide: 'env', useValue: config}
       ],

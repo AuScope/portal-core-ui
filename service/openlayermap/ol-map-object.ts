@@ -7,8 +7,13 @@ import olTile from 'ol/layer/tile';
 import olOSM from 'ol/source/osm';
 import olView from 'ol/view';
 import olLayer from 'ol/layer/layer';
+import olProj from 'ol/proj';
 import olSourceVector from 'ol/source/vector';
 import olLayerVector from 'ol/layer/vector';
+import olGeomPolygon from 'ol/geom/polygon';
+import olGeometry from 'ol/geom/geometry';
+import olControlMousePosition from 'ol/control/mouseposition';
+import olCoordinate from 'ol/coordinate';
 import olDraw from 'ol/interaction/draw';
 import olControl from 'ol/control';
 import olStyleStyle from 'ol/style/style';
@@ -21,7 +26,6 @@ import olEasing from 'ol/easing';
 import olObservable from 'ol/observable';
 import { Subject } from 'rxjs/Subject';
 import {BehaviorSubject} from 'rxjs/BehaviorSubject';
-
 
 /**
  * A wrapper around the openlayer object for use in the portal.
@@ -128,17 +132,15 @@ export class OlMapObject {
       activelayers.forEach(layer => {
         this.map.removeLayer(layer);
       });
-
-      this.renderStatusService.resetLayer(id);
     }
-
+    this.renderStatusService.resetLayer(id);
   }
 
   /**
   * Method for drawing a polygon shape on the map. e.g selecting a polygon bounding box on the map
   * @returns a observable object that triggers an event when the user complete the drawing
   */
-  public drawPolygon(): BehaviorSubject<String> {
+  public drawPolygon(): BehaviorSubject<olLayerVector> {
     this.ignoreMapClick = true;
     const source = new olSourceVector({ wrapX: false });
 
@@ -161,6 +163,38 @@ export class OlMapObject {
       me.map.removeInteraction(draw);
     });
     this.map.addInteraction(draw);
+    return vectorBS;
+  }
+
+  public renderPolygon(polygon: any): BehaviorSubject<olLayerVector> {
+    if (polygon.srs !== 'EPSG:3857') {
+      return null;
+    }
+
+    const coordsArray = polygon.coordinates.split(' ');
+    const coords = [];
+    for (const c of coordsArray) {
+      coords.push(c.split(','));
+    }
+    const geom = new olGeomPolygon([coords]);
+    const feature = new olFeature({geometry: geom})
+    const style = new olStyleStyle({
+      fill: new olStyleFill({
+        color: 'rgba(255, 255, 255, 0.6)'
+      }),
+      stroke: new olStyleStroke({
+        color: '#319FD3',
+        width: 1
+      })
+    });
+    const vector = new olLayerVector({
+        source: new olSourceVector({
+            features: [feature]
+        }),
+        style: style
+    });
+    const vectorBS = new BehaviorSubject<olLayerVector>(vector);
+    this.map.addLayer(vector);
     return vectorBS;
   }
 

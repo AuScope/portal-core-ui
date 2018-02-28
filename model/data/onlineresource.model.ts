@@ -9,5 +9,5 @@ export class OnlineResourceModel {
   type: string;
   url: string;
   version: string;
-  cswRecord: CSWRecordModel;
+  geographicElements: any;
 }

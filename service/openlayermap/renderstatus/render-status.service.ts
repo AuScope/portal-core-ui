@@ -29,6 +29,20 @@ export class RenderStatusService {
     }
     (<StatusMapModel>this.statusmaps[layer.id]).updateTotal(resource);
   }
+  
+  /**
+   * Register a resource when a layer is added. This will also add meta information about the resource to the
+   * status map. This should automatically be called from the wfs and wms render service and there should be no reason for user
+   * to call this function directly under normal circumstances
+   * @param layer the layer that is being render
+   * @param resource the resource from the layer that is being added.
+   */
+  public register(layer: LayerModel, resource: OnlineResourceModel) {
+    if (!this.statusmaps[layer.id]) {
+      this.statusmaps[layer.id] = new StatusMapModel(layer.id);
+    }
+    (<StatusMapModel>this.statusmaps[layer.id]).register(resource);
+  }
 
   /**
    * Mark the resource to as skip

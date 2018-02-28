@@ -1,3 +1,4 @@
+import { OnlineResourceModel } from '../model/data/onlineresource.model';
 import { Injectable } from '@angular/core';
 import {HttpParams} from '@angular/common/http';
 import * as _ from 'lodash';
@@ -442,5 +443,21 @@ export class UtilitiesService {
         return splitUrl[0] + '://' + splitUrl[1].slice(0, splitUrl[1].indexOf('/'));
     }
 
+
+  /**
+     * check if the cswRecord has a entry in the list of failing nagios record
+     * @param nagiosFailingHosts array of the list of host that is experiencing problem
+     * @param cswRecord the csw we are matching for problem
+     */
+    public static isEndpointFailing(nagiosFailingHosts: string[], onlineResource: OnlineResourceModel): boolean {
+      if (nagiosFailingHosts && nagiosFailingHosts.length > 0) {
+        for (const nagiosFailingHost of nagiosFailingHosts) {
+            if (onlineResource.url.indexOf(nagiosFailingHost) > -1) {
+              return true;
+            }
+        }
+      }
+      return false;
+    }
 
 }
