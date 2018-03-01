@@ -156,7 +156,11 @@ export class OlMapService {
         itemLayer.hidden = false;
         itemLayer.layerMode = 'NA';
         itemLayer.name = cswRecord.name;
-       this.addLayer(itemLayer, {});
+        try {
+            this.addLayer(itemLayer, {});
+        } catch(error) {
+            throw error;
+        }
    }
 
   /**
