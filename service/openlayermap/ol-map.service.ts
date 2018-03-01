@@ -19,6 +19,7 @@ import { OlCSWService } from '../wcsw/ol-csw.service';
 import { OlWFSService } from '../wfs/ol-wfs.service';
 import { OlMapObject } from './ol-map-object';
 import { OlWMSService } from '../wms/ol-wms.service';
+import { OlWWWService } from '../www/ol-www.service';
 import { Subject } from 'rxjs/Subject';
 
 
@@ -36,7 +37,7 @@ export class OlMapService {
 
    constructor(private layerHandlerService: LayerHandlerService, private olWMSService: OlWMSService,
      private olWFSService: OlWFSService, private olMapObject: OlMapObject, private manageStateService: ManageStateService, @Inject('env') private env,
-      private olCSWService: OlCSWService) {
+      private olCSWService: OlCSWService, private olWWWService: OlWWWService) {
 
      this.olMapObject.registerClickHandler(this.mapClickHandler.bind(this));
    }
@@ -126,6 +127,9 @@ export class OlMapService {
      } else if (this.layerHandlerService.containsWFS(layer)) {
        this.olWFSService.addLayer(layer, param);
        this.layerModelList[layer.id] = layer;
+     } else if (this.layerHandlerService.containsWWW(layer)) {
+       this.olWWWService.addLayer(layer, param);
+       this.layerModelList[layer.id] = layer;
      } else {
        throw new Error('No Suitable service found');
      }
@@ -197,8 +201,13 @@ export class OlMapService {
   /*
    *
    */
+  /*
   public getLayers(): { [id: string]: [olLayer] } {
       return this.olMapObject.getLayers();
+  }
+  */
+  public getLayerModelList(): { [key: string]: LayerModel; } {
+    return this.layerModelList;
   }
  
   
@@ -249,7 +258,7 @@ export class OlMapService {
   getMapExtent(): olExtent {
       return this.olMapObject.getMapExtent();
   }
-
+  
 
   /**
    * Draw an extent on the map object
