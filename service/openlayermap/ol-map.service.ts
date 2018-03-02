@@ -222,6 +222,20 @@ export class OlMapService {
   public fitView(extent: [number, number, number, number]): void {
       this.olMapObject.getMap().getView().fit(extent);
   }
+  
+  /**
+   * Zoom the map in one level
+   */
+  public zoomMapIn(): void {
+    this.olMapObject.zoomIn();
+  }
+  
+  /**
+   * Zoom the map out one level
+   */
+  public zoomMapOut(): void {
+    this.olMapObject.zoomOut();
+  }
 
   /**
    * DrawBound

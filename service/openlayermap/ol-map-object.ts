@@ -82,7 +82,21 @@ export class OlMapObject {
   public getMap(): olMap {
     return this.map;
   }
-
+  
+  /**
+   * Zoom the map in one level
+   */
+  public zoomIn(): void {
+    this.map.getView().setZoom(this.map.getView().getZoom() + 1);
+  }
+  
+  /**
+   * Zoom the map out one level
+   */
+  public zoomOut(): void {
+    this.map.getView().setZoom(this.map.getView().getZoom() - 1);
+  }
+  
   /**
    * Add an ol layer to the ol map. At the same time keep a reference map of the layers
    * @param layer: the ol layer to add to map
