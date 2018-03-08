@@ -197,7 +197,8 @@ export class LayerHandlerService {
     const uniqueURLSet = new Set<string>();
     for (const cswRecord of cswRecords) {
       for (const onlineResource of cswRecord.onlineResources) {
-        onlineResource.cswRecord = cswRecord;
+        // VT: We really just wanted the extent in the cswRecord so that ol only load whats is in the extent.
+        onlineResource.geographicElements = cswRecord.geographicElements;
         if (resourceType && onlineResource.type === resourceType) {
           if (!uniqueURLSet.has(onlineResource.url)) {
             onlineResourceResult.push(onlineResource);

@@ -166,7 +166,7 @@ export class SelectMapBoundingComponent implements AfterViewInit {
 
         let defaultExtent;
 
-        const cswExtent = wmsOnlineResource.cswRecord.geographicElements[0];
+        const cswExtent = wmsOnlineResource.geographicElements[0];
         defaultExtent = olProj.transformExtent([cswExtent.westBoundLongitude, cswExtent.southBoundLatitude,
         cswExtent.eastBoundLongitude, cswExtent.northBoundLatitude], 'EPSG:4326', 'EPSG:3857');
 

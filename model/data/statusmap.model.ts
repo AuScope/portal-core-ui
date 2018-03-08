@@ -46,6 +46,26 @@ export class StatusMapModel {
     this._statusMap.next(this);
   }
 
+  /**
+   * Register a resource without updating it
+   * @param onlineresource  online resource that is being loaded now
+   */
+  public register(onlineresource: OnlineResourceModel) {
+    if (!this.resourceMap[onlineresource.url]) {
+      this.resourceMap[onlineresource.url] = {};
+    }
+    this.resourceMap[onlineresource.url].status = 'Loading...';
+    if (!this.resourceMap[onlineresource.url].total) {
+      this.resourceMap[onlineresource.url].total = 0;
+    }
+    if (this.total === 0) {
+      this.completePercentage = '0%'
+    } else {
+      this.completePercentage = Math.floor(this.completed / this.total * 100) + '%';
+    }
+    this.renderStarted = true;
+    this._statusMap.next(this);
+  }
    /**
    * Add resource to the counter and update its status
    * @param onlineresource  online resource that is being loaded now
@@ -70,7 +90,12 @@ export class StatusMapModel {
     }
     this.resourceMap[onlineresource.url].completed += 1;
 
-    this.completePercentage = Math.floor(this.completed / this.total * 100) + '%';
+    if (Math.floor(this.completed / this.total * 100) > 100) {
+      // VT: This is a problem when user adds and immediately delete the layer which corrupts the listeners
+      this.completePercentage = '100%';
+    } else {
+      this.completePercentage = Math.floor(this.completed / this.total * 100) + '%';
+    }
     if (error) {
       this.resourceMap[onlineresource.url].status = 'Error';
       this.containsError = true;

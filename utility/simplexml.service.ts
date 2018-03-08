@@ -276,6 +276,7 @@ export class SimpleXMLService {
         return xmlDocument;
     }
 
+
   public static parseTreeCollection(rootNode: Document, feature: any): any[] {
 
 

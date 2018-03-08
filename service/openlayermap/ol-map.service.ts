@@ -32,6 +32,7 @@ export class OlMapService {
 
    // VT: a storage to keep track of the layers that have been added to the map. This is use to handle click events.
    private layerModelList: { [key: string]: LayerModel; } = {};
+   private addLayerSubject: Subject<LayerModel>;
 
    private clickedLayerListBS = new BehaviorSubject<any>({});
 
@@ -40,6 +41,7 @@ export class OlMapService {
       private olCSWService: OlCSWService, private olWWWService: OlWWWService) {
 
      this.olMapObject.registerClickHandler(this.mapClickHandler.bind(this));
+     this.addLayerSubject = new Subject<LayerModel>();
    }
 
   /**
@@ -120,27 +122,33 @@ export class OlMapService {
      delete this.layerModelList[layer.id];
      if (this.env.cswrenderer && this.env.cswrenderer.includes(layer.id)) {
        this.olCSWService.addLayer(layer, param);
-       this.layerModelList[layer.id] = layer;
+       this.cacheLayerModelList(layer.id, layer);
      } else if (this.layerHandlerService.containsWMS(layer)) {
        this.olWMSService.addLayer(layer, param);
-       this.layerModelList[layer.id] = layer;
+       this.cacheLayerModelList(layer.id, layer);
      } else if (this.layerHandlerService.containsWFS(layer)) {
        this.olWFSService.addLayer(layer, param);
        this.layerModelList[layer.id] = layer;
      } else if (this.layerHandlerService.containsWWW(layer)) {
        this.olWWWService.addLayer(layer, param);
-       this.layerModelList[layer.id] = layer;
+       this.cacheLayerModelList[layer.id] = layer;
      } else {
        throw new Error('No Suitable service found');
      }
    }
 
+   private cacheLayerModelList(id: string, layer: LayerModel) {
+     this.layerModelList[layer.id] = layer;
+     this.addLayerSubject.next(layer);
+   }
+
    /**
     *  In the event we have custom layer that is handled outside olMapService, we will want to register that layer here so that
-    *  it can be handled by the clicked event handler.
+    *  it can be handled by the clicked event handler. 
+    *  this is to support custom layer renderer such as iris that uses kml 
     */
    public appendToLayerModelList(layer) {
-     this.layerModelList[layer.id] = layer;
+     this.cacheLayerModelList(layer.id, layer);
    }
 
   /**
@@ -195,26 +203,24 @@ export class OlMapService {
   }
   
   /*
-   *
+   * Set the layer hidden property
    */
   public setLayerVisibility(layerId: string, visible: boolean) {
     this.layerModelList[layerId].hidden = !visible;
     this.olMapObject.setLayerVisibility(layerId, visible);
   }
 
-  /*
-   *
+  /**
+   * Retrieve the active layer list
    */
-  /*
-  public getLayers(): { [id: string]: [olLayer] } {
-      return this.olMapObject.getLayers();
-  }
-  */
   public getLayerModelList(): { [key: string]: LayerModel; } {
     return this.layerModelList;
   }
- 
-  
+   
+  public getAddLayerSubject(): Subject<LayerModel> {
+    return this.addLayerSubject;
+  }
+
   /**
    * Fit the map to the extent that is provided
    * @param extent An array of numbers representing an extent: [minx, miny, maxx, maxy]

@@ -8,4 +8,5 @@ export class QuerierInfoModel {
   value: any;
   layer: LayerModel;
   onlineResource: OnlineResourceModel;
+  raw: string; // VT: contains the raw xml or html
 }

@@ -158,6 +158,11 @@ export class OlWMSService {
         this.renderStatusService.skip(layer, wmsOnlineResource);
         continue;
       }
+      if (UtilitiesService.isEndpointFailing(layer.nagiosFailingHosts, wmsOnlineResource)) {
+        this.renderStatusService.addResource(layer, wmsOnlineResource);
+        this.renderStatusService.updateComplete(layer, wmsOnlineResource, true);
+        continue;
+      }
       const collatedParam = UtilitiesService.collateParam(layer, wmsOnlineResource, param);
       this.getSldBody(layer.proxyStyleUrl, collatedParam).subscribe(response => {
         const me = this;
@@ -169,8 +174,8 @@ export class OlWMSService {
         let wmsTile;
 
         let defaultExtent;
-        if (wmsOnlineResource.cswRecord.geographicElements.length > 0) {
-          const cswExtent = wmsOnlineResource.cswRecord.geographicElements[0];
+        if (wmsOnlineResource.geographicElements.length > 0) {
+          const cswExtent = wmsOnlineResource.geographicElements[0];
           defaultExtent = olProj.transformExtent([cswExtent.westBoundLongitude, cswExtent.southBoundLatitude,
           cswExtent.eastBoundLongitude, cswExtent.northBoundLatitude], 'EPSG:4326', 'EPSG:3857');
         } else {
@@ -209,6 +214,8 @@ export class OlWMSService {
         wmsTile.onlineResource = wmsOnlineResource;
         wmsTile.layer = layer;
 
+
+        me.renderStatusService.register(layer, wmsOnlineResource);
         wmsTile.getSource().on('tileloadstart', function(event) {
           me.renderStatusService.addResource(layer, wmsOnlineResource);
         });
