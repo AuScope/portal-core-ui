@@ -25,7 +25,6 @@ import olFeature from 'ol/feature';
 import olEasing from 'ol/easing';
 import olObservable from 'ol/observable';
 import olExtent from 'ol/extent';
-import olGeomPolygon from 'ol/geom/polygon';
 import { Subject } from 'rxjs/Subject';
 import {BehaviorSubject} from 'rxjs/BehaviorSubject';
 
