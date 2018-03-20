@@ -35,8 +35,8 @@ export class OlWMSService {
   /**
    * a private helper that to check of the url is too long
    */
-  private wmsUrlTooLong(sldBody: string): boolean {
-    return encodeURIComponent(sldBody).length > Constants.WMSMAXURLGET;
+  private wmsUrlTooLong(sldBody: string, layer: LayerModel): boolean {
+     return encodeURIComponent(sldBody).length > Constants.WMSMAXURLGET || this.env.forceAddLayerViaProxy.includes(layer.id);
   }
 
 
@@ -58,9 +58,9 @@ export class OlWMSService {
       'HEIGHT': Constants.TILE_SIZE
     };
 
-    if (sld_body && !this.wmsUrlTooLong(sld_body)) {
+    if (sld_body && !this.wmsUrlTooLong(sld_body, layer)) {
       params['sld_body'] = sld_body;
-    } else if (sld_body && this.wmsUrlTooLong(sld_body)) {
+    } else if (sld_body && this.wmsUrlTooLong(sld_body, layer)) {
       params['sldUrl'] = this.getSldUrl(layer, onlineResource, param);
     }
     return params;
@@ -84,9 +84,9 @@ export class OlWMSService {
       'WIDTH': Constants.TILE_SIZE,
       'HEIGHT': Constants.TILE_SIZE
     };
-    if (sld_body && !this.wmsUrlTooLong(sld_body)) {
+    if (sld_body && !this.wmsUrlTooLong(sld_body, layer)) {
       params['sld_body'] = sld_body;
-    } else if (sld_body && this.wmsUrlTooLong(sld_body)) {
+    } else if (sld_body && this.wmsUrlTooLong(sld_body, layer)) {
       params['sldUrl'] = this.getSldUrl(layer, onlineResource, param);
     }
     return params;
@@ -185,7 +185,7 @@ export class OlWMSService {
 
 
 
-        if (this.wmsUrlTooLong(response)) {
+        if (this.wmsUrlTooLong(response, layer)) {
           wmsTile = new olTile({
             extent: defaultExtent,
             source: new olTileWMS({
