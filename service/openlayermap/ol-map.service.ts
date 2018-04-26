@@ -1,4 +1,3 @@
-
 import { CSWRecordModel } from '../../model/data/cswrecord.model';
 import { Injectable, Inject } from '@angular/core';
 import olExtent from 'ol/extent';
@@ -110,8 +109,48 @@ export class OlMapService {
         throw error;
       }
    }
-
-
+   
+  /*
+   * Return a list of CSWRecordModels present in active layers that intersect
+   * the supplied extent
+   *
+   * @param extent the extent with which to test the intersection of CSW
+   * records
+   */
+  public getCSWRecordsForExtent(extent: olExtent): CSWRecordModel[] {
+    let intersectedCSWRecordList: CSWRecordModel[] = [];
+    extent = olProj.transformExtent(extent, 'EPSG:3857', 'EPSG:4326');    
+    const activeLayers = this.olMapObject.getLayers();    
+    const map = this.olMapObject.getMap();
+    const mapLayerColl = map.getLayers();
+    const me = this;
+    mapLayerColl.forEach(function(layer) {
+       for (const layerId in activeLayers) {
+           for (const activeLayer of activeLayers[layerId]) {
+               if (layer === activeLayer) {
+                   const layerModel = me.getLayerModel(layerId);
+                   if (!me.layerHandlerService.containsWMS(layerModel)) {
+                      continue;
+                   }
+                   for (const cswRecord of layerModel.cswRecords) {
+                       let cswRecordIntersects: boolean = false;
+                       for (const bbox of cswRecord.geographicElements) {
+                           const tBbox = [bbox.westBoundLongitude, bbox.southBoundLatitude, bbox.eastBoundLongitude, bbox.northBoundLatitude];
+                           if(olExtent.intersects(extent, tBbox)) {
+                               cswRecordIntersects = true;
+                           }
+                       }
+                       if(cswRecordIntersects) {
+                           intersectedCSWRecordList.push(cswRecord);
+                       }
+                   }
+               }
+           }
+        }
+     });
+     
+     return intersectedCSWRecordList;
+  }
 
   /**
    * Add layer to the wms
@@ -170,7 +209,16 @@ export class OlMapService {
             throw error;
         }
    }
-
+   
+   /**
+    *
+    */
+    /*
+   public getLayers(): { [id: string]: [olLayer]} {
+     return this.olMapObject.getLayers();
+   }
+   */
+   
   /**
    * Remove layer from map
    * @param layer the layer to remove from the map
