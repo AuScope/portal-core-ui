@@ -7,6 +7,8 @@ export class CSWRecordModel {
   adminArea: string;
   childRecords: any;
   constraints: any;
+  useLimitConstraints: any;
+  accessConstraints: any;
   contactOrg: string;
   datasetURIs: any;
   date: string;
