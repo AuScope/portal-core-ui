@@ -129,9 +129,11 @@ export class OlMapService {
            for (const activeLayer of activeLayers[layerId]) {
                if (layer === activeLayer) {
                    const layerModel = me.getLayerModel(layerId);
-                   if (!me.layerHandlerService.containsWMS(layerModel)) {
+                   /*
+                   if (!layerModel || !me.layerHandlerService.containsWMS(layerModel)) {
                       continue;
                    }
+                   */
                    for (const cswRecord of layerModel.cswRecords) {
                        let cswRecordIntersects: boolean = false;
                        for (const bbox of cswRecord.geographicElements) {
@@ -170,7 +172,7 @@ export class OlMapService {
        this.layerModelList[layer.id] = layer;
      } else if (this.layerHandlerService.containsWWW(layer)) {
        this.olWWWService.addLayer(layer, param);
-       this.cacheLayerModelList[layer.id] = layer;
+       this.layerModelList[layer.id] = layer;
      } else {
        throw new Error('No Suitable service found');
      }
