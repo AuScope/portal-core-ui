@@ -212,15 +212,6 @@ export class OlMapService {
         }
    }
    
-   /**
-    *
-    */
-    /*
-   public getLayers(): { [id: string]: [olLayer]} {
-     return this.olMapObject.getLayers();
-   }
-   */
-   
   /**
    * Remove layer from map
    * @param layer the layer to remove from the map
@@ -329,17 +320,17 @@ export class OlMapService {
    * Return the extent of the overall map
    * @returns the map extent
    */
-  getMapExtent(): olExtent {
-      return this.olMapObject.getMapExtent();
+  public getMapExtent(): olExtent {
+    return this.olMapObject.getMapExtent();
   }
   
-
   /**
    * Draw an extent on the map object
    * @param extent the extent to display on the map
+   * @param duration (Optional) the length of time in milliseconds to display the extent before it is removed. If not supplied the extent will not be removed.
    */
-  public displayExtent(extent: olExtent) {
-      this.olMapObject.displayExtent(extent);
+  public displayExtent(extent: olExtent, duration?: number) {
+    this.olMapObject.displayExtent(extent, duration);
   }
 
 }

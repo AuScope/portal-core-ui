@@ -132,7 +132,7 @@ export class OlMapObject {
    * Get all active layers
    */
   public getLayers(): { [id: string]: [olLayer]} {
-      return this.activeLayer;
+    return this.activeLayer;
   }
 
 
@@ -338,15 +338,16 @@ export class OlMapObject {
    * Return the extent of the entire map
    * @returns an olExtent object representing the bounds of the map
    */
-  getMapExtent(): olExtent {
+  public getMapExtent(): olExtent {
     return this.map.getView().calculateExtent(this.map.getSize());
   }
 
   /**
    * Display an extent for 3 seconds
    * @param extent the olExtent to display on the map
+   * @param duration (Optional) the length of time in milliseconds to display the extent before it is removed. If not supplied the extent will not be removed.
    */
-  displayExtent(extent: olExtent) {
+  public displayExtent(extent: olExtent, duration?: number): void {
     const poly: olGeomPolygon = olGeomPolygon.fromExtent(extent);
     const feature: olFeature = new olFeature(poly);
     const source = new olSourceVector({wrapX: false});
@@ -356,9 +357,11 @@ export class OlMapObject {
       source: source
     });
     this.map.addLayer(vector);
-    setTimeout(() => {
-      this.removeVector(vector);
-    }, 3000);
+    if(duration !== undefined && duration !== -1) {
+        setTimeout(() => {
+          this.removeVector(vector);
+        }, duration);
+    }
   }
 
   /**
