@@ -333,4 +333,11 @@ export class OlMapService {
     this.olMapObject.displayExtent(extent, duration);
   }
 
+  /**
+   * Call updateSize on map to handle scale changes
+   */   
+  public updateSize() {
+    this.olMapObject.updateSize();
+  }
+
 }

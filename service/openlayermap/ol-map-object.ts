@@ -391,5 +391,13 @@ export class OlMapObject {
     this.map.getView().setZoom(mapState.zoom);
     this.map.getView().setCenter(mapState.center);
   }
+  
+  
+  /**
+   * Call updateSize on the map to handle scale changes
+   */
+  public updateSize() {
+    this.map.updateSize();
+  }
 
 }
