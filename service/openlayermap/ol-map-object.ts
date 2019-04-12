@@ -44,14 +44,9 @@ export class OlMapObject {
   private clickHandlerList: ((p: any) => void )[] = [];
   private ignoreMapClick = false;
   private baseLayers = [];
-  //default mapLayers
-  private baseMapLayers = [{ value: 'OSM', viewValue: 'OpenStreetMap', layerType: 'OSM' }];
 
+  constructor(private renderStatusService: RenderStatusService,private baseMapLayers = [{ value: 'OSM', viewValue: 'OpenStreetMap', layerType: 'OSM' }]) {
 
-  constructor(private renderStatusService: RenderStatusService, private _baseMapLayers:any) {
-    if (_baseMapLayers !== null) {
-      this.baseLayers = _baseMapLayers;
-    }
     for (let i = 0; i < this.baseMapLayers.length; ++i) {
       if ( this.baseMapLayers[i].layerType === 'OSM') {
         this.baseLayers.push(new olTile({
