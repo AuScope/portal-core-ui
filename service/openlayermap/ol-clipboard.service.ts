@@ -2,7 +2,7 @@ import {Injectable, Inject} from '@angular/core';
 import olObservable from 'ol/observable';
 import {BehaviorSubject} from 'rxjs/BehaviorSubject';
 import olProj from 'ol/proj';
-import * as simplifyjs from 'simplify-js';
+import * as simplifyjs from 'simplify';
 import { OlMapObject } from './ol-map-object';
 import olLayerVector from 'ol/layer/vector';
 

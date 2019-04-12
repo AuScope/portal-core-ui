@@ -1,6 +1,6 @@
-
 import { CSWRecordModel } from '../../model/data/cswrecord.model';
 import { Injectable, Inject } from '@angular/core';
+import olExtent from 'ol/extent';
 import olLayerVector from 'ol/layer/vector';
 import olLayer from 'ol/layer/layer';
 import olFeature from 'ol/feature';
@@ -18,6 +18,7 @@ import { OlCSWService } from '../wcsw/ol-csw.service';
 import { OlWFSService } from '../wfs/ol-wfs.service';
 import { OlMapObject } from './ol-map-object';
 import { OlWMSService } from '../wms/ol-wms.service';
+import { OlWWWService } from '../www/ol-www.service';
 import { Subject } from 'rxjs/Subject';
 
 
@@ -36,7 +37,7 @@ export class OlMapService {
 
    constructor(private layerHandlerService: LayerHandlerService, private olWMSService: OlWMSService,
      private olWFSService: OlWFSService, private olMapObject: OlMapObject, private manageStateService: ManageStateService, @Inject('env') private env,
-      private olCSWService: OlCSWService) {
+      private olCSWService: OlCSWService, private olWWWService: OlWWWService) {
 
      this.olMapObject.registerClickHandler(this.mapClickHandler.bind(this));
      this.addLayerSubject = new Subject<LayerModel>();
@@ -108,8 +109,50 @@ export class OlMapService {
         throw error;
       }
    }
-
-
+   
+  /*
+   * Return a list of CSWRecordModels present in active layers that intersect
+   * the supplied extent
+   *
+   * @param extent the extent with which to test the intersection of CSW
+   * records
+   */
+  public getCSWRecordsForExtent(extent: olExtent): CSWRecordModel[] {
+    let intersectedCSWRecordList: CSWRecordModel[] = [];
+    extent = olProj.transformExtent(extent, 'EPSG:3857', 'EPSG:4326');    
+    const activeLayers = this.olMapObject.getLayers();    
+    const map = this.olMapObject.getMap();
+    const mapLayerColl = map.getLayers();
+    const me = this;
+    mapLayerColl.forEach(function(layer) {
+       for (const layerId in activeLayers) {
+           for (const activeLayer of activeLayers[layerId]) {
+               if (layer === activeLayer) {
+                   const layerModel = me.getLayerModel(layerId);
+                   /*
+                   if (!layerModel || !me.layerHandlerService.containsWMS(layerModel)) {
+                      continue;
+                   }
+                   */
+                   for (const cswRecord of layerModel.cswRecords) {
+                       let cswRecordIntersects: boolean = false;
+                       for (const bbox of cswRecord.geographicElements) {
+                           const tBbox = [bbox.westBoundLongitude, bbox.southBoundLatitude, bbox.eastBoundLongitude, bbox.northBoundLatitude];
+                           if(olExtent.intersects(extent, tBbox)) {
+                               cswRecordIntersects = true;
+                           }
+                       }
+                       if(cswRecordIntersects) {
+                           intersectedCSWRecordList.push(cswRecord);
+                       }
+                   }
+               }
+           }
+        }
+     });
+     
+     return intersectedCSWRecordList;
+  }
 
   /**
    * Add layer to the wms
@@ -126,7 +169,10 @@ export class OlMapService {
        this.cacheLayerModelList(layer.id, layer);
      } else if (this.layerHandlerService.containsWFS(layer)) {
        this.olWFSService.addLayer(layer, param);
-       this.cacheLayerModelList(layer.id, layer);
+       this.layerModelList[layer.id] = layer;
+     } else if (this.layerHandlerService.containsWWW(layer)) {
+       this.olWWWService.addLayer(layer, param);
+       this.layerModelList[layer.id] = layer;
      } else {
        throw new Error('No Suitable service found');
      }
@@ -159,9 +205,13 @@ export class OlMapService {
         itemLayer.hidden = false;
         itemLayer.layerMode = 'NA';
         itemLayer.name = cswRecord.name;
-       this.addLayer(itemLayer, {});
+        try {
+            this.addLayer(itemLayer, {});
+        } catch(error) {
+            throw error;
+        }
    }
-
+   
   /**
    * Remove layer from map
    * @param layer the layer to remove from the map
@@ -182,7 +232,32 @@ export class OlMapService {
       }
       return null;
   }
+  
+  /**
+   * Check if the layer denoted by layerId has been added to the map
+   * @param layerId the ID of the layer to check for
+   */
+  public layerExists(layerId: string): boolean {
+    if (layerId in this.layerModelList)
+      return true;
+    else return false;
+  }
+  
+  /*
+   * Set the layer hidden property
+   */
+  public setLayerVisibility(layerId: string, visible: boolean) {
+    this.layerModelList[layerId].hidden = !visible;
+    this.olMapObject.setLayerVisibility(layerId, visible);
+  }
 
+  /**
+   * Retrieve the active layer list
+   */
+  public getLayerModelList(): { [key: string]: LayerModel; } {
+    return this.layerModelList;
+  }
+   
   public getAddLayerSubject(): Subject<LayerModel> {
     return this.addLayerSubject;
   }
@@ -193,6 +268,20 @@ export class OlMapService {
    */
   public fitView(extent: [number, number, number, number]): void {
       this.olMapObject.getMap().getView().fit(extent);
+  }
+  
+  /**
+   * Zoom the map in one level
+   */
+  public zoomMapIn(): void {
+    this.olMapObject.zoomIn();
+  }
+  
+  /**
+   * Zoom the map out one level
+   */
+  public zoomMapOut(): void {
+    this.olMapObject.zoomOut();
   }
 
   /**
@@ -212,12 +301,43 @@ export class OlMapService {
   }
 
   /**
+  * Method for drawing a polygon on the map.
+  * @returns the polygon coordinates string BS on which the polygon is drawn on.
+  */
+  public drawPolygon(): BehaviorSubject<olLayerVector> {
+    return this.olMapObject.drawPolygon();
+  }
+
+  /**
    * remove a vector layer from the map
    * @param the vector layer to be removed
    */
   public removeVector(vector: olLayerVector) {
     this.olMapObject.removeVector(vector);
   }
+  
+  /**
+   * Return the extent of the overall map
+   * @returns the map extent
+   */
+  public getMapExtent(): olExtent {
+    return this.olMapObject.getMapExtent();
+  }
+  
+  /**
+   * Draw an extent on the map object
+   * @param extent the extent to display on the map
+   * @param duration (Optional) the length of time in milliseconds to display the extent before it is removed. If not supplied the extent will not be removed.
+   */
+  public displayExtent(extent: olExtent, duration?: number) {
+    this.olMapObject.displayExtent(extent, duration);
+  }
 
+  /**
+   * Call updateSize on map to handle scale changes
+   */   
+  public updateSize() {
+    this.olMapObject.updateSize();
+  }
 
 }

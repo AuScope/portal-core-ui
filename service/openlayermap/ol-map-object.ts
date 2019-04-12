@@ -24,6 +24,7 @@ import olGeomPoint from 'ol/geom/point';
 import olFeature from 'ol/feature';
 import olEasing from 'ol/easing';
 import olObservable from 'ol/observable';
+import olExtent from 'ol/extent';
 import { Subject } from 'rxjs/Subject';
 import {BehaviorSubject} from 'rxjs/BehaviorSubject';
 
@@ -84,7 +85,21 @@ export class OlMapObject {
   public getMap(): olMap {
     return this.map;
   }
-
+  
+  /**
+   * Zoom the map in one level
+   */
+  public zoomIn(): void {
+    this.map.getView().setZoom(this.map.getView().getZoom() + 1);
+  }
+  
+  /**
+   * Zoom the map out one level
+   */
+  public zoomOut(): void {
+    this.map.getView().setZoom(this.map.getView().getZoom() - 1);
+  }
+  
   /**
    * Add an ol layer to the ol map. At the same time keep a reference map of the layers
    * @param layer: the ol layer to add to map
@@ -117,7 +132,7 @@ export class OlMapObject {
    * Get all active layers
    */
   public getLayers(): { [id: string]: [olLayer]} {
-      return this.activeLayer;
+    return this.activeLayer;
   }
 
 
@@ -128,13 +143,26 @@ export class OlMapObject {
   public removeLayerById(id: string) {
     const activelayers = this.getLayerById(id);
     if (activelayers) {
-      this.activeLayer[id] = [];
       activelayers.forEach(layer => {
         this.map.removeLayer(layer);
       });
+      delete this.activeLayer[id];
+      this.renderStatusService.resetLayer(id);
     }
-    this.renderStatusService.resetLayer(id);
   }
+  
+  /*
+   *
+   */
+  public setLayerVisibility(layerId: string, visible: boolean) {
+    if (this.getLayerById(layerId) != null) {
+        let layers: [olLayer] = this.getLayerById(layerId);
+        for(let layer of layers) {
+            layer.setVisible(visible);
+        }
+    }
+  }
+  
 
   /**
   * Method for drawing a polygon shape on the map. e.g selecting a polygon bounding box on the map
@@ -305,6 +333,36 @@ export class OlMapObject {
 
     return vector;
   }
+  
+  /**
+   * Return the extent of the entire map
+   * @returns an olExtent object representing the bounds of the map
+   */
+  public getMapExtent(): olExtent {
+    return this.map.getView().calculateExtent(this.map.getSize());
+  }
+
+  /**
+   * Display an extent for 3 seconds
+   * @param extent the olExtent to display on the map
+   * @param duration (Optional) the length of time in milliseconds to display the extent before it is removed. If not supplied the extent will not be removed.
+   */
+  public displayExtent(extent: olExtent, duration?: number): void {
+    const poly: olGeomPolygon = olGeomPolygon.fromExtent(extent);
+    const feature: olFeature = new olFeature(poly);
+    const source = new olSourceVector({wrapX: false});
+    source.addFeature(feature);
+    // TODO: Styling
+    let vector = new olLayerVector({
+      source: source
+    });
+    this.map.addLayer(vector);
+    if(duration !== undefined && duration !== -1) {
+        setTimeout(() => {
+          this.removeVector(vector);
+        }, duration);
+    }
+  }
 
   /**
    * Remove a vector from the map
@@ -332,6 +390,14 @@ export class OlMapObject {
   public resumeMapState(mapState) {
     this.map.getView().setZoom(mapState.zoom);
     this.map.getView().setCenter(mapState.center);
+  }
+  
+  
+  /**
+   * Call updateSize on the map to handle scale changes
+   */
+  public updateSize() {
+    this.map.updateSize();
   }
 
 }

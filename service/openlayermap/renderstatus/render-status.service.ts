@@ -85,7 +85,9 @@ export class RenderStatusService {
    * @param layer the layer that is being reset
    */
   public resetLayer(layerId: string) {
-     this.statusmaps[layerId].resetStatus();
+    if(this.statusmaps[layerId] != undefined) {
+      this.statusmaps[layerId].resetStatus();
+    }
   }
 
 
