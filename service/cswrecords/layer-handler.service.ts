@@ -169,6 +169,23 @@ export class LayerHandlerService {
   public getWFSResource (layer: LayerModel): OnlineResourceModel[] {
     return this.getOnlineResources(layer, Constants.resourceType.WFS);
   }
+  
+   /**
+   * Check if layer contains www records
+   * @param layer the layer to query for www records
+   * @return true if www resource exists
+   */
+  public containsWWW(layer: LayerModel): boolean {
+     const cswRecords: CSWRecordModel[] = layer.cswRecords;
+      for (const cswRecord of cswRecords) {
+         for (const onlineResource of cswRecord.onlineResources) {
+           if (onlineResource.type === Constants.resourceType.WWW) {
+             return true;
+           }
+         }
+      }
+      return false;
+  }
 
   /**
     * Extract resources based on the type. If type is not defined, return all the resource

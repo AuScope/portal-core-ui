@@ -24,14 +24,15 @@ import olFeature from 'ol/feature';
 import olEasing from 'ol/easing';
 import olObservable from 'ol/observable';
 import { Subject , BehaviorSubject} from 'rxjs';
-import { environment } from '../../../../environments/environment';
-
+import olExtent from 'ol/extent';
 
 export interface BaseMapLayerOption {
   value: string;
   viewValue: string;
   layerType: string;
 }
+
+
 
 /**
  * A wrapper around the openlayer object for use in the portal.
@@ -43,44 +44,48 @@ export class OlMapObject {
   private clickHandlerList: ((p: any) => void )[] = [];
   private ignoreMapClick = false;
   private baseLayers = [];
+  //default mapLayers
+  private baseMapLayers = [{ value: 'OSM', viewValue: 'OpenStreetMap', layerType: 'OSM' }];
 
 
-  constructor(private renderStatusService: RenderStatusService) {
-
-    for (let i = 0; i < environment.baseMapLayers.length; ++i) {
-      if ( environment.baseMapLayers[i].layerType === 'OSM') {
+  constructor(private renderStatusService: RenderStatusService, private _baseMapLayers:any) {
+    if (_baseMapLayers !== null) {
+      this.baseLayers = _baseMapLayers;
+    }
+    for (let i = 0; i < this.baseMapLayers.length; ++i) {
+      if ( this.baseMapLayers[i].layerType === 'OSM') {
         this.baseLayers.push(new olTile({
           visible: true,
           source: new olOSM()
         }));
-      } else if ( environment.baseMapLayers[i].layerType === 'Bing') {
+      } else if ( this.baseMapLayers[i].layerType === 'Bing') {
         this.baseLayers.push(new TileLayer({
           visible: false,
           preload: Infinity,
           source: new BingMaps({
             key: 'AgfoWboIfoy68Vu38c2RE83rEEuvWKjQWV37g7stRUAPcDiGALCEKHefrDyWn1zM',
-            imagerySet: environment.baseMapLayers[i].value,
+            imagerySet: this.baseMapLayers[i].value,
             // use maxZoom 19 to see stretched tiles instead of the BingMaps
             // "no photos at this zoom level" tiles
              maxZoom: 19
           })
         }));
-      } else if (environment.baseMapLayers[i].layerType === 'ESRI') {
+      } else if (this.baseMapLayers[i].layerType === 'ESRI') {
         this.baseLayers.push(new TileLayer({
           visible: false,
           preload: Infinity,
           source: new XYZ({
-            attributions: 'Tiles © <a href="https://services.arcgisonline.com/ArcGIS/rest/services/' + environment.baseMapLayers[i].value + '/MapServer">ArcGIS</a>',
-            url: 'https://server.arcgisonline.com/ArcGIS/rest/services/' + environment.baseMapLayers[i].value + '/MapServer/tile/{z}/{y}/{x}',
+            attributions: 'Tiles © <a href="https://services.arcgisonline.com/ArcGIS/rest/services/' + this.baseMapLayers[i].value + '/MapServer">ArcGIS</a>',
+            url: 'https://server.arcgisonline.com/ArcGIS/rest/services/' + this.baseMapLayers[i].value + '/MapServer/tile/{z}/{y}/{x}',
             maxZoom: 18
           })
         }));
-      } else if (environment.baseMapLayers[i].layerType === 'Google') {
+      } else if (this.baseMapLayers[i].layerType === 'Google') {
         this.baseLayers.push(new TileLayer({
           visible: false,
           preload: Infinity,
           source: new XYZ({
-            url: 'http://mt1.google.com/vt/lyrs=' + environment.baseMapLayers[i].value + '&x={x}&y={y}&z={z}'
+            url: 'http://mt1.google.com/vt/lyrs=' + this.baseMapLayers[i].value + '&x={x}&y={y}&z={z}'
           })
         }));
       }
@@ -111,8 +116,8 @@ export class OlMapObject {
 
   public switchBaseMap(newstyle: string): void {
       for (let i = 0; i < this.baseLayers.length; ++i) {
-        this.baseLayers[i].setVisible(environment.baseMapLayers[i].value === newstyle);
-        if (environment.baseMapLayers[i].value === 'World_Imagery' && newstyle === 'Reference/World_Boundaries_and_Places') {
+        this.baseLayers[i].setVisible(this.baseMapLayers[i].value === newstyle);
+        if (this.baseMapLayers[i].value === 'World_Imagery' && newstyle === 'Reference/World_Boundaries_and_Places') {
           this.baseLayers[i].setVisible(true);
         }
       }
@@ -137,7 +142,21 @@ export class OlMapObject {
   public getMap(): olMap {
     return this.map;
   }
-
+  
+  /**
+   * Zoom the map in one level
+   */
+  public zoomIn(): void {
+    this.map.getView().setZoom(this.map.getView().getZoom() + 1);
+  }
+  
+  /**
+   * Zoom the map out one level
+   */
+  public zoomOut(): void {
+    this.map.getView().setZoom(this.map.getView().getZoom() - 1);
+  }
+  
   /**
    * Add an ol layer to the ol map. At the same time keep a reference map of the layers
    * @param layer: the ol layer to add to map
@@ -174,7 +193,7 @@ export class OlMapObject {
    * Get all active layers
    */
   public getLayers(): { [id: string]: [olLayer]} {
-      return this.activeLayer;
+    return this.activeLayer;
   }
 
 
@@ -185,13 +204,26 @@ export class OlMapObject {
   public removeLayerById(id: string) {
     const activelayers = this.getLayerById(id);
     if (activelayers) {
-      this.activeLayer[id] = [];
       activelayers.forEach(layer => {
         this.map.removeLayer(layer);
       });
+      delete this.activeLayer[id];
+      this.renderStatusService.resetLayer(id);
     }
-    this.renderStatusService.resetLayer(id);
   }
+  
+  /*
+   *
+   */
+  public setLayerVisibility(layerId: string, visible: boolean) {
+    if (this.getLayerById(layerId) != null) {
+        let layers: [olLayer] = this.getLayerById(layerId);
+        for(let layer of layers) {
+            layer.setVisible(visible);
+        }
+    }
+  }
+  
 
   /**
   * Method for drawing a polygon shape on the map. e.g selecting a polygon bounding box on the map
@@ -378,6 +410,36 @@ export class OlMapObject {
 
     return vector;
   }
+  
+  /**
+   * Return the extent of the entire map
+   * @returns an olExtent object representing the bounds of the map
+   */
+  public getMapExtent(): olExtent {
+    return this.map.getView().calculateExtent(this.map.getSize());
+  }
+
+  /**
+   * Display an extent for 3 seconds
+   * @param extent the olExtent to display on the map
+   * @param duration (Optional) the length of time in milliseconds to display the extent before it is removed. If not supplied the extent will not be removed.
+   */
+  public displayExtent(extent: olExtent, duration?: number): void {
+    const poly: olGeomPolygon = olGeomPolygon.fromExtent(extent);
+    const feature: olFeature = new olFeature(poly);
+    const source = new olSourceVector({wrapX: false});
+    source.addFeature(feature);
+    // TODO: Styling
+    let vector = new olLayerVector({
+      source: source
+    });
+    this.map.addLayer(vector);
+    if(duration !== undefined && duration !== -1) {
+        setTimeout(() => {
+          this.removeVector(vector);
+        }, duration);
+    }
+  }
 
   /**
    * Remove a vector from the map
@@ -405,6 +467,14 @@ export class OlMapObject {
   public resumeMapState(mapState) {
     this.map.getView().setZoom(mapState.zoom);
     this.map.getView().setCenter(mapState.center);
+  }
+  
+  
+  /**
+   * Call updateSize on the map to handle scale changes
+   */
+  public updateSize() {
+    this.map.updateSize();
   }
 
 }
