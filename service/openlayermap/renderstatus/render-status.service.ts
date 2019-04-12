@@ -1,8 +1,8 @@
 import {LayerModel} from '../../../model/data/layer.model';
 import {OnlineResourceModel} from '../../../model/data/onlineresource.model';
 import {StatusMapModel} from '../../../model/data/statusmap.model';
-import {Injectable, Inject} from '@angular/core';
-import {BehaviorSubject} from 'rxjs/BehaviorSubject';
+import {Injectable} from '@angular/core';
+import {BehaviorSubject} from 'rxjs';
 
 /**
  * Service class to query for current layer loading status
@@ -29,7 +29,7 @@ export class RenderStatusService {
     }
     (<StatusMapModel>this.statusmaps[layer.id]).updateTotal(resource);
   }
-  
+
   /**
    * Register a resource when a layer is added. This will also add meta information about the resource to the
    * status map. This should automatically be called from the wfs and wms render service and there should be no reason for user
@@ -90,4 +90,3 @@ export class RenderStatusService {
 
 
 }
-

@@ -1,6 +1,5 @@
 import { UtilitiesService } from '../../../utility/utilities.service';
-import {Injectable, Inject} from '@angular/core';
-import * as $ from 'jquery';
+import { Injectable } from '@angular/core';
 
 declare var d3: any;
 declare var Rickshaw: any;

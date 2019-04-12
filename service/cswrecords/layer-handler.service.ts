@@ -1,8 +1,11 @@
+
+import {of as observableOf,  Observable } from 'rxjs';
+
+import {map} from 'rxjs/operators';
 import { CSWRecordModel } from '../../model/data/cswrecord.model';
 import { Injectable, Inject } from '@angular/core';
 import {HttpClient, HttpParams} from '@angular/common/http';
-import { Observable } from 'rxjs/Observable';
-import 'rxjs/Rx';
+
 import {LayerModel} from '../../model/data/layer.model';
 import { OnlineResourceModel } from '../../model/data/onlineresource.model';
 import { Constants } from '../../utility/constants.service';
@@ -29,10 +32,10 @@ export class LayerHandlerService {
   public getLayerRecord(): Observable<any> {
     const me = this;
     if (this.layerRecord.length > 0) {
-        return Observable.of(this.layerRecord);
+        return observableOf(this.layerRecord);
     } else {
-      return this.http.get(this.env.portalBaseUrl + this.env.getCSWRecordUrl)
-        .map(response => {
+      return this.http.get(this.env.portalBaseUrl + this.env.getCSWRecordUrl).pipe(
+        map(response => {
             const cswRecord = response['data'];
             cswRecord.forEach(function(item, i, ar) {
               if (me.layerRecord[item.group] === undefined) {
@@ -45,7 +48,7 @@ export class LayerHandlerService {
               me.layerRecord[item.group].push(item);
             });
             return me.layerRecord;
-        });
+        }));
     }
   }
 
@@ -59,7 +62,7 @@ export class LayerHandlerService {
 
     return this.http.get(this.env.portalBaseUrl + this.env.getCustomLayers, {
       params: httpParams
-    }).map(response => {
+    }).pipe(map(response => {
       if (response['success'] === false) {
         return null;
       }
@@ -68,9 +71,9 @@ export class LayerHandlerService {
       itemLayers['Results'] = [];
       cswRecord.forEach(function(item, i, ar) {
         const itemLayer = new LayerModel();
-        itemLayer.cswRecords = item;
+        itemLayer.cswRecords = [item];
         itemLayer['expanded'] = false;
-        itemLayer.id = serviceUrl;
+        itemLayer.id = item.id;
         itemLayer.description = item.description;
         itemLayer.hidden = false;
         itemLayer.layerMode = 'NA';
@@ -78,7 +81,7 @@ export class LayerHandlerService {
         itemLayers['Results'].push(itemLayer);
       });
       return itemLayers;
-    });
+    }));
   }
 
 

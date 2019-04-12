@@ -1,35 +1,22 @@
+
+import {map} from 'rxjs/operators';
 import { Bbox } from '../model/data/bbox.model';
 import { LayerModel } from '../model/data/layer.model';
 import { OnlineResourceModel } from '../model/data/onlineresource.model';
 import { LayerHandlerService } from '../service/cswrecords/layer-handler.service';
-import { OlMapObject } from '../service/openlayermap/ol-map-object';
-import { OlMapService } from '../service/openlayermap/ol-map.service';
 import { Constants } from '../utility/constants.service';
-import { UtilitiesService } from '../utility/utilities.service';
 import { Component, ElementRef, AfterViewInit, ViewChild, Output, EventEmitter, Input, Inject } from '@angular/core';
 import olMap from 'ol/map';
 import olTile from 'ol/layer/tile';
 import olOSM from 'ol/source/osm';
 import olView from 'ol/view';
-import olLayer from 'ol/layer/layer';
 import olSourceVector from 'ol/source/vector';
 import olLayerVector from 'ol/layer/vector';
-import olControlMousePosition from 'ol/control/mouseposition';
-import olCoordinate from 'ol/coordinate';
 import olDraw from 'ol/interaction/draw';
 import olControl from 'ol/control';
-import olStyleStyle from 'ol/style/style';
-import olStyleCircle from 'ol/style/circle';
-import olStyleFill from 'ol/style/fill';
-import olStyleStroke from 'ol/style/stroke';
-import olGeomPoint from 'ol/geom/point';
 import olProj from 'ol/proj';
-import olFeature from 'ol/feature';
-import olEasing from 'ol/easing';
-import olObservable from 'ol/observable';
-import {BehaviorSubject} from 'rxjs/BehaviorSubject';
-import {HttpClient, HttpHeaders, HttpParams} from '@angular/common/http';
-import { Observable } from 'rxjs/Observable';
+import {BehaviorSubject,  Observable } from 'rxjs';
+import { HttpClient } from '@angular/common/http';
 import olTileWMS from 'ol/source/tilewms';
 
 @Component({
@@ -144,9 +131,9 @@ export class SelectMapBoundingComponent implements AfterViewInit {
 
     return this.http.get(this.env.portalBaseUrl + sldUrl, {
       responseType: 'text'
-    }).map(response => {
+    }).pipe(map(response => {
       return response;
-    });
+    }));
   }
 
   private addLayer() {

@@ -1,13 +1,15 @@
 
-import { CSWRecordModel } from '../../model/data/cswrecord.model';
-import { Injectable, Inject, SkipSelf } from '@angular/core';
+import {throwError as observableThrowError,  Observable } from 'rxjs';
+
+import {catchError, map} from 'rxjs/operators';
+
+import { Injectable, Inject } from '@angular/core';
 import {LayerModel} from '../../model/data/layer.model';
 import { OnlineResourceModel } from '../../model/data/onlineresource.model';
 import { PrimitiveModel } from '../../model/data/primitive.model';
 import { LayerHandlerService } from '../cswrecords/layer-handler.service';
 import { OlMapObject } from '../openlayermap/ol-map-object';
 import {HttpClient, HttpParams} from '@angular/common/http';
-import { Headers, RequestOptions } from '@angular/http';
 import olMap from 'ol/map';
 import olPoint from 'ol/geom/point';
 import olProj from 'ol/proj';
@@ -16,7 +18,6 @@ import olStyle from 'ol/style/style';
 import olIcon from 'ol/style/icon';
 import olLayerVector from 'ol/layer/vector';
 import olSourceVector from 'ol/source/vector';
-import { Observable } from 'rxjs/Rx';
 import { GMLParserService } from '../../utility/gmlparser.service';
 import { Constants } from '../../utility/constants.service';
 import { UtilitiesService } from '../../utility/utilities.service';
@@ -55,43 +56,23 @@ export class OlWFSService {
     if (layer.proxyUrl) {
       return this.http.get(this.env.portalBaseUrl + layer.proxyUrl, {
         params: httpParams
-      }).map(response => {
+      }).pipe(map(response => {
         return response['data'];
-      });
+      }));
     } else {
       return this.http.get(this.env.portalBaseUrl + 'getAllFeatures.do', {
         params: httpParams
-      }).map(response => {
+      }).pipe(map(response => {
         return response['data'];
-      }).catch(
+      }), catchError(
         (error: Response) => {
-          return Observable.throw(error);
+          return observableThrowError(error);
         }
-      );
+      ), );
     }
   }
 
-  private getRandomPaddle(): string {
-    const paddlesList = ['http://maps.google.com/mapfiles/kml/paddle/blu-blank.png',
-      'http://maps.google.com/mapfiles/kml/paddle/blu-circle.png',
-      'http://maps.google.com/mapfiles/kml/paddle/blu-diamond.png',
-      'http://maps.google.com/mapfiles/kml/paddle/grn-blank.png',
-      'http://maps.google.com/mapfiles/kml/paddle/grn-diamond.png',
-      'http://maps.google.com/mapfiles/kml/paddle/ltblu-blank.png',
-      'http://maps.google.com/mapfiles/kml/paddle/ltblu-diamond.png',
-      'http://maps.google.com/mapfiles/kml/paddle/pink-blank.png',
-      'http://maps.google.com/mapfiles/kml/paddle/pink-square.png',
-      'http://maps.google.com/mapfiles/kml/paddle/purple-square.png',
-      'http://maps.google.com/mapfiles/kml/paddle/red-diamond.png',
-      'http://maps.google.com/mapfiles/kml/paddle/red-stars.png',
-      'http://maps.google.com/mapfiles/kml/paddle/wht-square.png',
-      'http://maps.google.com/mapfiles/kml/paddle/ylw-blank.png',
-      'http://maps.google.com/mapfiles/kml/paddle/ylw-diamond.png',
-      'http://maps.google.com/mapfiles/kml/paddle/orange-blank.png',
-      'http://maps.google.com/mapfiles/kml/paddle/purple-circle.png'];
-    const random = Math.floor(Math.random() * paddlesList.length);
-    return paddlesList[random];
-  }
+
 
   /**
    * Add geometry type point to the map
@@ -162,7 +143,7 @@ export class OlWFSService {
         const rootNode = this.gmlParserService.getRootNode(response.gml);
         const primitives = this.gmlParserService.makePrimitives(rootNode);
         if (!layer.iconUrl) {
-          layer.iconUrl = this.getRandomPaddle();
+          layer.iconUrl = Constants.getRandomPaddle();
         }
         for (const primitive of primitives) {
           switch (primitive.geometryType) {

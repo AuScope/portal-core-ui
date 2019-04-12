@@ -1,12 +1,11 @@
-import { CSWRecordModel } from '../../model/data/cswrecord.model';
+
+import {throwError as observableThrowError, Observable} from 'rxjs';
+
+import {catchError, map} from 'rxjs/operators';
 import {Injectable, Inject} from '@angular/core';
 import {HttpClient, HttpParams, HttpHeaders} from '@angular/common/http';
-import {Observable} from 'rxjs/Rx';
-import {UtilitiesService} from '../../utility/utilities.service';
-import {LayerModel} from '../../model/data/layer.model';
 import {OnlineResourceModel} from '../../model/data/onlineresource.model';
 import { OlMapObject } from '../openlayermap/ol-map-object';
-import { Constants } from '../../utility/constants.service';
 
 
 @Injectable()
@@ -21,7 +20,7 @@ export class QueryWMSService {
   * @param onlineresource the wfs online resource
   * @return Observable the observable from the http request
    */
-  public getFeatureInfo(onlineResource: OnlineResourceModel, sldBody: string, pixel: any, clickCoord: any, isHtmlFormat?: boolean): Observable<any> {
+  public getFeatureInfo(onlineResource: OnlineResourceModel, sldBody: string, pixel: any, clickCoord: any): Observable<any> {
 
     const bounds = this.olMapObject.getMap().getView().calculateExtent();
     const bbox = [bounds[2].toString(), bounds[3].toString(), bounds[0].toString(), bounds[1].toString()].toString();
@@ -47,28 +46,37 @@ export class QueryWMSService {
       formdata = formdata.append('SLD_BODY', '');
     }
 
-
-    if (isHtmlFormat) {
-      formdata = formdata.append('INFO_FORMAT', 'text/html');
+    if (onlineResource.name.indexOf('ProvinceFullExtent') >= 0) {
+      formdata = formdata.append('INFO_FORMAT', 'application/vnd.ogc.gml');
     } else {
       formdata = formdata.append('INFO_FORMAT', 'application/vnd.ogc.gml/3.1.1');
     }
 
     if (onlineResource.applicationProfile && onlineResource.applicationProfile.indexOf('Esri:ArcGIS Server') > -1) {
-      formdata = formdata.append('INFO_FORMAT', 'text/xml');
+      formdata = formdata.set('INFO_FORMAT', 'text/xml');
+      formdata = formdata.set('SLD_BODY', '');
+      formdata = formdata.set('postMethod', 'false');
+    }
+
+    if (onlineResource.description.indexOf('ASTER') >= 0) {
+      formdata = formdata.set('INFO_FORMAT', 'text/xml');
+    }
+
+    if (onlineResource.description.indexOf('EMAG2 - Total Magnetic Intensity') >= 0) {
+      formdata = formdata.set('INFO_FORMAT', 'text/xml');
     }
 
     return this.http.post(this.env.portalBaseUrl + 'wmsMarkerPopup.do', formdata.toString(), {
       headers: new HttpHeaders()
         .set('Content-Type', 'application/x-www-form-urlencoded'),
       responseType: 'text'
-    }).map(response => {
+    }).pipe(map(response => {
       return response;
-    }).catch(
+    }), catchError(
         (error: Response) => {
-          return Observable.throw(error);
+          return observableThrowError(error);
         }
-      );
+      ), );
 
 
   }

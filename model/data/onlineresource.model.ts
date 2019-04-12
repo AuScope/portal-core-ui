@@ -1,7 +1,6 @@
 /**
  * A representation of a online resource
  */
-import { CSWRecordModel } from './cswrecord.model';
 export class OnlineResourceModel {
   applicationProfile: string;
   description: string;

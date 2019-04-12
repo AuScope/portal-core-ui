@@ -1,13 +1,12 @@
 
 import { CSWRecordModel } from '../../model/data/cswrecord.model';
-import { Injectable, Inject, SkipSelf } from '@angular/core';
-import {LayerModel} from '../../model/data/layer.model';
+import { Injectable, Inject } from '@angular/core';
+import { LayerModel } from '../../model/data/layer.model';
 import { OnlineResourceModel } from '../../model/data/onlineresource.model';
 import { PrimitiveModel } from '../../model/data/primitive.model';
 import { LayerHandlerService } from '../cswrecords/layer-handler.service';
 import { OlMapObject } from '../openlayermap/ol-map-object';
-import {HttpClient, HttpParams} from '@angular/common/http';
-import { Headers, RequestOptions } from '@angular/http';
+import { HttpClient } from '@angular/common/http';
 import olMap from 'ol/map';
 import olPoint from 'ol/geom/point';
 import olPolygon from 'ol/geom/polygon';
@@ -19,24 +18,25 @@ import olLayerVector from 'ol/layer/vector';
 import olSourceVector from 'ol/source/vector';
 import olStyleStroke from 'ol/style/stroke';
 import olStyleFill from 'ol/style/fill';
-import { Observable } from 'rxjs/Rx';
-import { GMLParserService } from '../../utility/gmlparser.service';
 import { Constants } from '../../utility/constants.service';
-import { UtilitiesService } from '../../utility/utilities.service';
 import { RenderStatusService } from '../openlayermap/renderstatus/render-status.service';
 
 /**
- * Use OlMapService to add layer to map. This service class adds wfs layer to the map
+ * Use OlMapService to add csw layer like reports to map. This service class adds csw layer to the map
  */
 @Injectable()
 export class OlCSWService {
+
+  // VT in the event we cannot find a suitable renderer, we default to csw. we need to store the layers that have been rendered
+  // so that the querier will be able to know which layer have been rendered as csw
+  public static cswDiscoveryRendered = [];
 
   private map: olMap;
 
   constructor(private layerHandlerService: LayerHandlerService,
                   private olMapObject: OlMapObject,
                   private http: HttpClient,
-                  private renderStatusService: RenderStatusService) {
+                  private renderStatusService: RenderStatusService, @Inject('env') private env) {
     this.map = this.olMapObject.getMap();
   }
 
@@ -58,7 +58,7 @@ export class OlCSWService {
                      // size: [32, 32],
                      scale: 0.5,
                      opacity: 1,
-                     src: layer.iconUrl
+                     src: layer.iconUrl ? layer.iconUrl : Constants.getRandomPaddle()
            }))
           })
        ]);
@@ -71,6 +71,9 @@ export class OlCSWService {
     // VT: we chose the first layer in the array based on the assumption that we only create a single vector
     // layer for each wfs layer. WMS may potentially contain more than 1 layer in the array. note the difference
     (<olLayerVector>this.olMapObject.getLayerById(layer.id)[0]).getSource().addFeature(feature);
+    if (!OlCSWService.cswDiscoveryRendered.includes(feature.layer.id)) {
+      OlCSWService.cswDiscoveryRendered.push(layer.id);
+    }
   }
 
   public addLine(primitive: PrimitiveModel): void {
@@ -88,7 +91,7 @@ export class OlCSWService {
     feature.setStyle([
       new olStyle({
         stroke: new olStyleStroke({
-          color: 'blue',
+          color: Constants.getMatchingPolygonColor(layer.iconUrl),
           width: 3
         }),
         fill: new olStyleFill({
@@ -104,7 +107,9 @@ export class OlCSWService {
     feature.layer = layer;
 
     (<olLayerVector>this.olMapObject.getLayerById(layer.id)[0]).getSource().addFeature(feature);
-
+    if (!OlCSWService.cswDiscoveryRendered.includes(feature.layer.id)) {
+      OlCSWService.cswDiscoveryRendered.push(layer.id);
+    }
   }
 
   /**

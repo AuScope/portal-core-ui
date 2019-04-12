@@ -1,7 +1,6 @@
 import { UtilitiesService } from '../../utility/utilities.service';
 import { OlMapObject } from '../openlayermap/ol-map-object';
 import {Injectable} from '@angular/core';
-import {Observable} from 'rxjs/Observable';
 import * as _ from 'lodash';
 
 declare var LZMA: any;
@@ -86,7 +85,7 @@ export class ManageStateService {
    * @param callback a callback after compression
    */
   public getCompressedString(toBeCompressed: string, callback): void {
-    LZMA.compress(toBeCompressed, 1, callback);
+    LZMA.compress(toBeCompressed, 9, callback);
   }
 
   /**

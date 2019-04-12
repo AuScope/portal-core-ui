@@ -1,12 +1,13 @@
+
+import {throwError as observableThrowError,  Observable } from 'rxjs';
+
+import {timeoutWith, map, catchError} from 'rxjs/operators';
 import { Bbox } from '../../../model/data/bbox.model';
 import { LayerModel } from '../../../model/data/layer.model';
 import { Constants } from '../../../utility/constants.service';
 import { LayerHandlerService } from '../../cswrecords/layer-handler.service';
 import {HttpClient, HttpParams, HttpHeaders} from '@angular/common/http';
 import {Injectable, Inject} from '@angular/core';
-import {Headers, RequestOptions} from '@angular/http';
-import * as $ from 'jquery';
-import { Observable } from 'rxjs/Observable';
 
 
 /**
@@ -53,14 +54,14 @@ export class DownloadWcsService {
       return this.http.get(this.env.portalBaseUrl + 'downloadWCSAsZip.do', {
         params: httpParams,
         responseType: 'blob'
-      }).timeoutWith(360000, Observable.throw(new Error('Request have timeout out after 5 minutes')))
-        .map((response) => { // download file
+      }).pipe(timeoutWith(360000, observableThrowError(new Error('Request have timeout out after 5 minutes'))),
+        map((response) => { // download file
           return response;
-        }).catch((error: Response) => {
-          return Observable.throw(error);
-        });
+        }), catchError((error: Response) => {
+          return observableThrowError(error);
+        }), );
     } catch (e) {
-      return Observable.throw(e);
+      return observableThrowError(e);
     }
 
   }
@@ -73,16 +74,16 @@ export class DownloadWcsService {
     return this.http.post(this.env.portalBaseUrl + 'describeCoverage.do', httpParams.toString(), {
       headers: new HttpHeaders().set('Content-Type', 'application/x-www-form-urlencoded'),
       responseType: 'json'
-    }).map(response => {
+    }).pipe(map(response => {
       if (response['success'] === true) {
         return response['data'][0];
       } else {
-        return Observable.throw(response['msg']);
+        return observableThrowError(response['msg']);
       }
-    }).catch(
+    }), catchError(
       (error: Response) => {
-        return Observable.throw(error);
+        return observableThrowError(error);
       }
-      );
+      ), );
   }
 }

@@ -25,7 +25,6 @@ import { OlCSWService } from './service/wcsw/ol-csw.service';
 import { DownloadWcsService } from './service/wcs/download/download-wcs.service';
 import { QueryWMSService} from './service/wms/query-wms.service';
 import { QueryWFSService} from './service/wfs/query-wfs.service';
-import {NgSelectizeModule} from 'ng-selectize';
 
 
 
@@ -44,11 +43,10 @@ import { SelectMapBoundingComponent } from './widget/selectmap.bounding';
     HttpClientModule,
     BrowserModule,
     FormsModule,
-    HttpModule,
-    NgSelectizeModule
+    HttpModule
   ],
   exports: [ImgLoadingDirective, StopPropagationDirective,
-    HttpClientModule, BrowserModule, FormsModule, HttpModule, NgSelectizeModule, SelectMapBoundingComponent],
+    HttpClientModule, BrowserModule, FormsModule, HttpModule, SelectMapBoundingComponent],
   providers: [LayerHandlerService,
     OlWMSService,
     OlMapObject,
@@ -70,13 +68,14 @@ import { SelectMapBoundingComponent } from './widget/selectmap.bounding';
 
 export class PortalCoreModule {
 
-  static forRoot(config: any): ModuleWithProviders {
+  static forRoot(env: any, conf: any): ModuleWithProviders {
     return {
       ngModule: PortalCoreModule,
       providers: [
         OlClipboardService,
         OlMapService,
-        {provide: 'env', useValue: config}
+        {provide: 'env', useValue: env},
+        {provide: 'conf', useValue: conf}
       ],
     };
   }

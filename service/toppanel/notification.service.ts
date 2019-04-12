@@ -1,6 +1,9 @@
+
+import {throwError as observableThrowError } from 'rxjs';
+
+import {catchError, map} from 'rxjs/operators';
 import { Injectable, Inject } from '@angular/core';
 import { Http, Response } from '@angular/http';
-import { Observable } from 'rxjs/Observable';
 
 /**
  * Service class for the twitter notification
@@ -15,17 +18,17 @@ export class NotificationService {
    * @return a observable that contains the twitter notification
    */
   getNotifications() {
-    return this.http.get(this.env.portalBaseUrl + 'getNotifications.do')
-      .map(
+    return this.http.get(this.env.portalBaseUrl + 'getNotifications.do').pipe(
+      map(
         (response: Response) => {
           const data = response.json();
           return data;
         }
-      )
-      .catch(
+      ),
+      catchError(
         (error: Response) => {
-          return Observable.throw(error);
+          return observableThrowError(error);
         }
-      );
+      ), );
     }
 }

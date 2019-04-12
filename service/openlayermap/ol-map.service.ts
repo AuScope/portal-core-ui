@@ -4,12 +4,10 @@ import { Injectable, Inject } from '@angular/core';
 import olLayerVector from 'ol/layer/vector';
 import olLayer from 'ol/layer/layer';
 import olFeature from 'ol/feature';
-import olRenderFeature from 'ol/render/feature';
 import olProj from 'ol/proj';
-import {BehaviorSubject} from 'rxjs/BehaviorSubject';
-import { point, polygon } from '@turf/helpers';
+import {BehaviorSubject,  Subject } from 'rxjs';
+import { point } from '@turf/helpers';
 import * as inside from '@turf/inside';
-import * as bbox from '@turf/bbox';
 import * as bboxPolygon from '@turf/bbox-polygon';
 import {LayerModel} from '../../model/data/layer.model';
 import { LayerHandlerService } from '../cswrecords/layer-handler.service';
@@ -18,7 +16,6 @@ import { OlCSWService } from '../wcsw/ol-csw.service';
 import { OlWFSService } from '../wfs/ol-wfs.service';
 import { OlMapObject } from './ol-map-object';
 import { OlWMSService } from '../wms/ol-wms.service';
-import { Subject } from 'rxjs/Subject';
 
 
 
@@ -35,8 +32,8 @@ export class OlMapService {
    private clickedLayerListBS = new BehaviorSubject<any>({});
 
    constructor(private layerHandlerService: LayerHandlerService, private olWMSService: OlWMSService,
-     private olWFSService: OlWFSService, private olMapObject: OlMapObject, private manageStateService: ManageStateService, @Inject('env') private env,
-      private olCSWService: OlCSWService) {
+     private olWFSService: OlWFSService, private olMapObject: OlMapObject, private manageStateService: ManageStateService,
+     @Inject('conf') private conf, private olCSWService: OlCSWService) {
 
      this.olMapObject.registerClickHandler(this.mapClickHandler.bind(this));
      this.addLayerSubject = new Subject<LayerModel>();
@@ -95,7 +92,11 @@ export class OlMapService {
            // Compile a list of clicked on features
            const clickedFeatureList: olFeature[] = [];
            const featureHit = map.forEachFeatureAtPixel(pixel, function(feature) {
-               clickedFeatureList.push(feature);
+              // LJ: skip the olFeature
+              if (feature.get('bClipboardVector')) {
+                return;
+              }
+              clickedFeatureList.push(feature);
            });
 
            this.clickedLayerListBS.next({
@@ -118,7 +119,7 @@ export class OlMapService {
    public addLayer(layer: LayerModel, param: any): void {
      this.olMapObject.removeLayerById(layer.id);
      delete this.layerModelList[layer.id];
-     if (this.env.cswrenderer && this.env.cswrenderer.includes(layer.id)) {
+     if (this.conf.cswrenderer && this.conf.cswrenderer.includes(layer.id)) {
        this.olCSWService.addLayer(layer, param);
        this.cacheLayerModelList(layer.id, layer);
      } else if (this.layerHandlerService.containsWMS(layer)) {
@@ -139,8 +140,8 @@ export class OlMapService {
 
    /**
     *  In the event we have custom layer that is handled outside olMapService, we will want to register that layer here so that
-    *  it can be handled by the clicked event handler. 
-    *  this is to support custom layer renderer such as iris that uses kml 
+    *  it can be handled by the clicked event handler.
+    *  this is to support custom layer renderer such as iris that uses kml
     */
    public appendToLayerModelList(layer) {
      this.cacheLayerModelList(layer.id, layer);

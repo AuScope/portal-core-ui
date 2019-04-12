@@ -1,19 +1,18 @@
-import {OnlineResourceModel} from '../../model/data/onlineresource.model';
 import {RenderStatusService} from './renderstatus/render-status.service';
 import {Constants} from '../../utility/constants.service';
-import {Injectable, Inject} from '@angular/core';
+import {Injectable} from '@angular/core';
 import olMap from 'ol/map';
 import olTile from 'ol/layer/tile';
 import olOSM from 'ol/source/osm';
 import olView from 'ol/view';
 import olLayer from 'ol/layer/layer';
-import olProj from 'ol/proj';
 import olSourceVector from 'ol/source/vector';
+import olFormatGML2 from 'ol/format/gml2';
 import olLayerVector from 'ol/layer/vector';
+import XYZ from 'ol/source/xyz';
+import TileLayer from 'ol/layer/tile';
 import olGeomPolygon from 'ol/geom/polygon';
-import olGeometry from 'ol/geom/geometry';
-import olControlMousePosition from 'ol/control/mouseposition';
-import olCoordinate from 'ol/coordinate';
+import BingMaps from 'ol/source/bingmaps';
 import olDraw from 'ol/interaction/draw';
 import olControl from 'ol/control';
 import olStyleStyle from 'ol/style/style';
@@ -24,8 +23,15 @@ import olGeomPoint from 'ol/geom/point';
 import olFeature from 'ol/feature';
 import olEasing from 'ol/easing';
 import olObservable from 'ol/observable';
-import { Subject } from 'rxjs/Subject';
-import {BehaviorSubject} from 'rxjs/BehaviorSubject';
+import { Subject , BehaviorSubject} from 'rxjs';
+import { environment } from '../../../../environments/environment';
+
+
+export interface BaseMapLayerOption {
+  value: string;
+  viewValue: string;
+  layerType: string;
+}
 
 /**
  * A wrapper around the openlayer object for use in the portal.
@@ -36,16 +42,53 @@ export class OlMapObject {
   private activeLayer: {};
   private clickHandlerList: ((p: any) => void )[] = [];
   private ignoreMapClick = false;
+  private baseLayers = [];
+
 
   constructor(private renderStatusService: RenderStatusService) {
 
-    const osm_layer: any = new olTile({
-      source: new olOSM()
-    });
+    for (let i = 0; i < environment.baseMapLayers.length; ++i) {
+      if ( environment.baseMapLayers[i].layerType === 'OSM') {
+        this.baseLayers.push(new olTile({
+          visible: true,
+          source: new olOSM()
+        }));
+      } else if ( environment.baseMapLayers[i].layerType === 'Bing') {
+        this.baseLayers.push(new TileLayer({
+          visible: false,
+          preload: Infinity,
+          source: new BingMaps({
+            key: 'AgfoWboIfoy68Vu38c2RE83rEEuvWKjQWV37g7stRUAPcDiGALCEKHefrDyWn1zM',
+            imagerySet: environment.baseMapLayers[i].value,
+            // use maxZoom 19 to see stretched tiles instead of the BingMaps
+            // "no photos at this zoom level" tiles
+             maxZoom: 19
+          })
+        }));
+      } else if (environment.baseMapLayers[i].layerType === 'ESRI') {
+        this.baseLayers.push(new TileLayer({
+          visible: false,
+          preload: Infinity,
+          source: new XYZ({
+            attributions: 'Tiles © <a href="https://services.arcgisonline.com/ArcGIS/rest/services/' + environment.baseMapLayers[i].value + '/MapServer">ArcGIS</a>',
+            url: 'https://server.arcgisonline.com/ArcGIS/rest/services/' + environment.baseMapLayers[i].value + '/MapServer/tile/{z}/{y}/{x}',
+            maxZoom: 18
+          })
+        }));
+      } else if (environment.baseMapLayers[i].layerType === 'Google') {
+        this.baseLayers.push(new TileLayer({
+          visible: false,
+          preload: Infinity,
+          source: new XYZ({
+            url: 'http://mt1.google.com/vt/lyrs=' + environment.baseMapLayers[i].value + '&x={x}&y={y}&z={z}'
+          })
+        }));
+      }
+    }
     this.activeLayer = {};
     this.map = new olMap({
       controls: [],
-      layers: [osm_layer],
+      layers: this.baseLayers,
       view: new olView({
         center: Constants.CENTRE_COORD,
         zoom: 4
@@ -63,6 +106,16 @@ export class OlMapObject {
         clickHandler(pixel);
       }
     });
+
+  }
+
+  public switchBaseMap(newstyle: string): void {
+      for (let i = 0; i < this.baseLayers.length; ++i) {
+        this.baseLayers[i].setVisible(environment.baseMapLayers[i].value === newstyle);
+        if (environment.baseMapLayers[i].value === 'World_Imagery' && newstyle === 'Reference/World_Boundaries_and_Places') {
+          this.baseLayers[i].setVisible(true);
+        }
+      }
 
   }
 
@@ -93,6 +146,10 @@ export class OlMapObject {
   public addLayerById(layer: olLayer, id: string): void {
     if (!this.activeLayer[id]) {
       this.activeLayer[id] = [];
+    }
+    // LJ:skip the polygon search for getFeatureInfo.
+    if (layer.sldBody && layer.sldBody.indexOf('<ogc:Intersects>') >= 0)  {
+      layer.sldBody = '';
     }
     this.activeLayer[id].push(layer);
 
@@ -157,10 +214,15 @@ export class OlMapObject {
     const me = this;
     draw.on('drawend', function (e) {
       const coords = e.feature.getGeometry().getCoordinates()[0];
+      e.feature.set('bClipboardVector', true, true);
+
       const coordString = coords.join(' ');
       vector.set('polygonString', coordString);
       vectorBS.next(vector);
       me.map.removeInteraction(draw);
+      setTimeout(function() {
+        me.ignoreMapClick = false;
+      }, 500);
     });
     this.map.addInteraction(draw);
     return vectorBS;
@@ -170,14 +232,22 @@ export class OlMapObject {
     if (polygon.srs !== 'EPSG:3857') {
       return null;
     }
-
-    const coordsArray = polygon.coordinates.split(' ');
-    const coords = [];
-    for (const c of coordsArray) {
-      coords.push(c.split(','));
+    let feature = null;
+    if (polygon.geometryType === Constants.geometryType.MULTIPOLYGON) {
+      const gmlFormat = new olFormatGML2();
+      const gml2 = polygon.raw;
+      feature = gmlFormat.readFeatures(gml2, {featureProjection: 'EPSG:3857'})[0];
+    } else {
+      const coordsArray = polygon.coordinates.split(' ');
+      const coords = [];
+      for (const c of coordsArray) {
+        coords.push(c.split(','));
+      }
+      const geom = new olGeomPolygon([coords]);
+      feature = new olFeature({geometry: geom});
     }
-    const geom = new olGeomPolygon([coords]);
-    const feature = new olFeature({geometry: geom})
+
+    feature.set('bClipboardVector', true, true);
     const style = new olStyleStyle({
       fill: new olStyleFill({
         color: 'rgba(255, 255, 255, 0.6)'
@@ -189,7 +259,10 @@ export class OlMapObject {
     });
     const vector = new olLayerVector({
         source: new olSourceVector({
-            features: [feature]
+          format: new olFormatGML2({
+            srsName: 'EPSG::3857'
+          }),
+          features: [feature]
         }),
         style: style
     });

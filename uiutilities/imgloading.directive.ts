@@ -1,8 +1,8 @@
-import { Directive, ElementRef, HostListener, Input } from '@angular/core';
+import { Directive, ElementRef, HostListener } from '@angular/core';
 
 /** This directive adds a spinner image to the background of an <img> tag.
  The spinner will disappear once the image is loaded or an error occurs.
- NOTO BENE: This directive modifies the 'style' attribute of the <img>.
+ NOTA BENE: This directive modifies the 'style' attribute of the <img>.
  */
 @Directive({ selector: '[appImgLoading]' })
 export class ImgLoadingDirective {
@@ -10,7 +10,7 @@ export class ImgLoadingDirective {
       * Gets called at the start, adds a spinner to the loading image
       */
     constructor(private el: ElementRef) {
-        el.nativeElement.setAttribute('style', 'background: transparent url(template/framework/slick/ajax-loader.gif) no-repeat scroll center');
+        el.nativeElement.setAttribute('style', 'background: transparent url(extension/images/ajax-loader.gif) no-repeat scroll center');
     }
 
     /**

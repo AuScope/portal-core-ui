@@ -136,7 +136,29 @@ export class GMLParserService {
             featureNode: featureNode
         };
     }
+    /**
+     * Given a root placemark node attempt to parse it as a single point and return it. Returns a single portal.map.primitives.Polygon
+     * @method parseMultiPolygon
+     * @param geomNode - the coordinate node containing the geomNode
+     * @return multipolygon - an multipolygon
+     */
+    parseMultiPolygon(geomNode: any, srsKeyword: string, geomKeyword: string, nameKeyword: string): any {
+        const srsName = this.getSrsName(geomNode);
+        const parsedGeom = SimpleXMLService.getNodeInnerHTML(geomNode.getElementsByTagNameNS('*', geomKeyword)[0]);
+        const name = SimpleXMLService.getNodeTextContent(geomNode.getElementsByTagNameNS('*', nameKeyword)[0]);
+        if (parsedGeom.length === 0) {
+            return null;
+        }
 
+        return {
+            name: name,
+            srs: srsName,
+            coordinates: parsedGeom,
+            geometryType : Constants.geometryType.MULTIPOLYGON,
+        };
+
+
+    }
 
     /**
      * Given a root placemark node attempt to parse it as a single point and return it. Returns a single portal.map.primitives.Polygon

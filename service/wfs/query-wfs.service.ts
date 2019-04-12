@@ -1,11 +1,9 @@
+
+import {throwError as observableThrowError,  Observable } from 'rxjs';
+
+import {catchError, map} from 'rxjs/operators';
 import { Injectable, Inject } from '@angular/core';
-import { Observable } from 'rxjs/Rx';
-import olLayer from 'ol/layer/layer';
-import olFeature from 'ol/feature';
-import { OlMapObject } from '../../../portal-core-ui/service/openlayermap/ol-map-object';
 import {HttpClient, HttpParams} from '@angular/common/http';
-import { UtilitiesService } from '../../utility/utilities.service';
-import {LayerModel} from '../../model/data/layer.model';
 import { OnlineResourceModel } from '../../model/data/onlineresource.model';
 
 @Injectable()
@@ -27,17 +25,17 @@ export class QueryWFSService {
 
       return this.http.get(this.env.portalBaseUrl + 'requestFeature.do', {
         params: httpParams
-      }).map(response => {
+      }).pipe(map(response => {
         if (response['success']) {
           return response['data']['gml'];
         } else {
-          return Observable.throw('error');
+          return observableThrowError('error');
         }
-      }).catch(
+      }), catchError(
         (error: Response) => {
-          return Observable.throw(error);
+          return observableThrowError(error);
         }
-        );
+        ), );
 
   }
 }

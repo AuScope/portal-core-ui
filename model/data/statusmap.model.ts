@@ -1,6 +1,5 @@
-import { LayerModel } from './layer.model';
 import { OnlineResourceModel } from './onlineresource.model';
-import {BehaviorSubject} from 'rxjs/BehaviorSubject';
+import {BehaviorSubject} from 'rxjs';
 
 /**
  * A representation of the current rendering status of a layer. User should not be directly accessing these under
@@ -85,6 +84,9 @@ export class StatusMapModel {
    */
   public updateComplete(onlineresource: OnlineResourceModel, error?: boolean) {
     this.completed += 1;
+    if (!this.resourceMap[onlineresource.url]) {
+      return;
+    }
     if (!this.resourceMap[onlineresource.url].completed) {
       this.resourceMap[onlineresource.url].completed = 0;
     }
