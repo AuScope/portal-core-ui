@@ -11,8 +11,8 @@ import olLayerVector from 'ol/layer/vector';
  */
 @Injectable()
 export class OlClipboardService {
-  private polygonBBoxs: Polygon[];
-  public polygonsBS: BehaviorSubject<Polygon[]>;
+  private polygonBBox: Polygon;
+  public polygonsBS: BehaviorSubject<Polygon>;
 
   public vectorOnMap: olLayerVector;
 
@@ -24,9 +24,9 @@ export class OlClipboardService {
 
   constructor(private olMapObject: OlMapObject) {
     this.vectorOnMap = null;
-    this.polygonBBoxs = [];
-    this.polygonsBS = new BehaviorSubject<Polygon[]>(this.polygonBBoxs);
-    this.polygonsBS.next(this.polygonBBoxs);
+    this.polygonBBox = null;
+    this.polygonsBS = new BehaviorSubject<Polygon>(this.polygonBBox);
+    this.polygonsBS.next(this.polygonBBox);
 
   }
 
@@ -49,8 +49,8 @@ export class OlClipboardService {
           const coords = vector.get('polygonString');
           if ( coords ) {
             const newPolygon = {name: 'manual-' + Math.floor(Math.random() * 1000), srs: 'EPSG:3857', coordinates: coords, olvector: vector};
-            this.polygonBBoxs.push(newPolygon);
-            this.polygonsBS.next(this.polygonBBoxs);
+            this.polygonBBox = newPolygon;
+            this.polygonsBS.next(this.polygonBBox);
             console.log('drawPolygon' + newPolygon.name + ':' + newPolygon.coordinates);
             if (this.vectorOnMap) {
               this.olMapObject.removeVector(this.vectorOnMap);
@@ -63,8 +63,8 @@ export class OlClipboardService {
     if (this.vectorOnMap) {
       this.olMapObject.removeVector(this.vectorOnMap);
     }
-    if (this.polygonBBoxs.length) {
-      this.olMapObject.renderPolygon(this.polygonBBoxs[0]).subscribe(
+    if (this.polygonBBox) {
+      this.olMapObject.renderPolygon(this.polygonBBox).subscribe(
         (vector) => {
           this.vectorOnMap = vector;
         });
@@ -72,10 +72,8 @@ export class OlClipboardService {
   }
 
   public addPolygon(newPolygon: Polygon) {
-    for (const polygon of this.polygonBBoxs) {
-      if (typeof polygon !== 'undefined' && polygon.name === newPolygon.name) {
-        return;
-      }
+    if (this.polygonBBox !== null && this.polygonBBox.name === newPolygon.name) {
+      return;
     }
     const coordsArray = newPolygon.coordinates.split(' ');
     const coords = [];
@@ -96,17 +94,19 @@ export class OlClipboardService {
     const newPolygonString = newCoords.join(' ');
     newPolygon.coordinates = newPolygonString;
     // save the newPolygon to polygonsBS
-    this.polygonBBoxs.push(newPolygon);
-    this.polygonsBS.next(this.polygonBBoxs);
+    this.polygonBBox = newPolygon;
+    this.polygonsBS.next(this.polygonBBox);
+    // show polygon on map
+    this.renderPolygon();
   }
 
   public removePolygon() {
-    this.polygonsBS.next(this.polygonBBoxs);
+    this.polygonsBS.next(this.polygonBBox);
   }
 
   public clearClipboard() {
-    this.polygonBBoxs = [];
-    this.polygonsBS.next(this.polygonBBoxs);
+    this.polygonBBox = null;
+    this.polygonsBS.next(this.polygonBBox);
     if (this.vectorOnMap) {
       this.olMapObject.removeVector(this.vectorOnMap);
     }
