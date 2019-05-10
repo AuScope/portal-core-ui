@@ -27,8 +27,7 @@ export class OlWMSService {
     private olMapObject: OlMapObject,
     private http: HttpClient,
     private renderStatusService: RenderStatusService,
-    @Inject("env") private env,
-    @Inject("conf") private conf
+    @Inject("env") private env
   ) {
     this.map = this.olMapObject.getMap();
   }
@@ -39,7 +38,7 @@ export class OlWMSService {
   private wmsUrlTooLong(sldBody: string, layer: LayerModel): boolean {
     return (
       encodeURIComponent(sldBody).length > Constants.WMSMAXURLGET ||
-      this.conf.forceAddLayerViaProxy.includes(layer.id)
+      this.env.forceAddLayerViaProxy.includes(layer.id)
     );
   }
 

@@ -1,6 +1,6 @@
-import {RenderStatusService} from './renderstatus/render-status.service';
-import {Constants} from '../../utility/constants.service';
-import {Injectable, Inject} from '@angular/core';
+import { RenderStatusService } from './renderstatus/render-status.service';
+import { Constants } from '../../utility/constants.service';
+import { Injectable, Inject } from '@angular/core';
 import olMap from 'ol/map';
 import olTile from 'ol/layer/tile';
 import olOSM from 'ol/source/osm';
@@ -23,7 +23,7 @@ import olGeomPoint from 'ol/geom/point';
 import olFeature from 'ol/feature';
 import olEasing from 'ol/easing';
 import olObservable from 'ol/observable';
-import { Subject , BehaviorSubject} from 'rxjs';
+import { Subject , BehaviorSubject } from 'rxjs';
 import olExtent from 'ol/extent';
 
 export interface BaseMapLayerOption {
@@ -39,6 +39,7 @@ export interface BaseMapLayerOption {
  */
 @Injectable()
 export class OlMapObject {
+
   private map: olMap;
   private activeLayer: {};
   private clickHandlerList: ((p: any) => void )[] = [];

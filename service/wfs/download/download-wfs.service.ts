@@ -1,14 +1,13 @@
 
-import {throwError as observableThrowError,  Observable } from 'rxjs';
+import { throwError as observableThrowError,  Observable } from 'rxjs';
 
-import {catchError, map, timeoutWith} from 'rxjs/operators';
+import { catchError, map, timeoutWith } from 'rxjs/operators';
 import { Bbox } from '../../../model/data/bbox.model';
 import { LayerModel } from '../../../model/data/layer.model';
 import { LayerHandlerService } from '../../cswrecords/layer-handler.service';
-import {HttpClient, HttpParams} from '@angular/common/http';
-import {Injectable, Inject} from '@angular/core';
+import { HttpClient, HttpParams } from '@angular/common/http';
+import { Injectable, Inject } from '@angular/core';
 import * as $ from 'jquery';
-import { environment } from '../../../../../environments/environment';
 declare var gtag: Function;
 
 /**
@@ -17,14 +16,12 @@ declare var gtag: Function;
 @Injectable()
 export class DownloadWfsService {
 
-
-
   constructor(private layerHandlerService: LayerHandlerService, private http: HttpClient, @Inject('env') private env) {
 
   }
 
   /**
-   * down the layer
+   * Download the layer
    * @param the layer to download
    * @param bbox the bounding box of the area to download
    */
@@ -32,7 +29,7 @@ export class DownloadWfsService {
 
     try {
       const wfsResources = this.layerHandlerService.getWFSResource(layer);
-      if (environment.googleAnalyticsKey && typeof gtag === 'function') {
+      if (this.env.googleAnalyticsKey && typeof gtag === 'function') {
         gtag('event', 'CSVDownload',  {'event_category': 'CSVDownload', 'event_action': layer.id });
       }
       let downloadUrl = 'getAllFeaturesInCSV.do';

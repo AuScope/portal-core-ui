@@ -70,14 +70,13 @@ import { SelectMapBoundingComponent } from './widget/selectmap.bounding';
 
 export class PortalCoreModule {
 
-  static forRoot(env: any, conf: any): ModuleWithProviders {
+  static forRoot(env: any): ModuleWithProviders {
     return {
       ngModule: PortalCoreModule,
       providers: [
         OlClipboardService,
         OlMapService,
-        {provide: 'env', useValue: env},
-        {provide: 'conf', useValue: conf}
+        {provide: 'env', useValue: env}
       ],
     };
   }
