@@ -1,6 +1,6 @@
 import {RenderStatusService} from './renderstatus/render-status.service';
 import {Constants} from '../../utility/constants.service';
-import {Injectable} from '@angular/core';
+import {Injectable, Inject} from '@angular/core';
 import olMap from 'ol/map';
 import olTile from 'ol/layer/tile';
 import olOSM from 'ol/source/osm';
@@ -44,9 +44,12 @@ export class OlMapObject {
   private clickHandlerList: ((p: any) => void )[] = [];
   private ignoreMapClick = false;
   private baseLayers = [];
+  private baseMapLayers = [{ value: 'OSM', viewValue: 'OpenStreetMap', layerType: 'OSM' }];
 
-  constructor(private renderStatusService: RenderStatusService,private baseMapLayers = [{ value: 'OSM', viewValue: 'OpenStreetMap', layerType: 'OSM' }]) {
-
+  constructor(private renderStatusService: RenderStatusService, @Inject('env') private env) {
+    if (env !== null) {
+      this.baseMapLayers = env.baseMapLayers;
+    }
     for (let i = 0; i < this.baseMapLayers.length; ++i) {
       if ( this.baseMapLayers[i].layerType === 'OSM') {
         this.baseLayers.push(new olTile({
