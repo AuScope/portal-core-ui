@@ -5,11 +5,11 @@ import olLayerVector from 'ol/layer/vector';
 import olLayer from 'ol/layer/layer';
 import olFeature from 'ol/feature';
 import olProj from 'ol/proj';
-import {BehaviorSubject,  Subject } from 'rxjs';
+import { BehaviorSubject,  Subject } from 'rxjs';
 import { point } from '@turf/helpers';
 import * as inside from '@turf/inside';
 import * as bboxPolygon from '@turf/bbox-polygon';
-import {LayerModel} from '../../model/data/layer.model';
+import { LayerModel } from '../../model/data/layer.model';
 import { LayerHandlerService } from '../cswrecords/layer-handler.service';
 import { ManageStateService } from '../permanentlink/manage-state.service';
 import { OlCSWService } from '../wcsw/ol-csw.service';
@@ -17,7 +17,6 @@ import { OlWFSService } from '../wfs/ol-wfs.service';
 import { OlMapObject } from './ol-map-object';
 import { OlWMSService } from '../wms/ol-wms.service';
 import { OlWWWService } from '../www/ol-www.service';
-import { Subject } from 'rxjs/Subject';
 
 
 
@@ -34,7 +33,7 @@ export class OlMapService {
    private clickedLayerListBS = new BehaviorSubject<any>({});
 
    constructor(private layerHandlerService: LayerHandlerService, private olWMSService: OlWMSService,
-     private olWFSService: OlWFSService, private olMapObject: OlMapObject, private manageStateService: ManageStateService, @Inject('conf') private conf,
+     private olWFSService: OlWFSService, private olMapObject: OlMapObject, private manageStateService: ManageStateService, @Inject('env') private env,
       private olCSWService: OlCSWService, private olWWWService: OlWWWService) {
 
      this.olMapObject.registerClickHandler(this.mapClickHandler.bind(this));
@@ -163,7 +162,7 @@ export class OlMapService {
    public addLayer(layer: LayerModel, param: any): void {
      this.olMapObject.removeLayerById(layer.id);
      delete this.layerModelList[layer.id];
-     if (this.conf.cswrenderer && this.conf.cswrenderer.includes(layer.id)) {
+     if (this.env.cswrenderer && this.env.cswrenderer.includes(layer.id)) {
        this.olCSWService.addLayer(layer, param);
        this.cacheLayerModelList(layer.id, layer);
      } else if (this.layerHandlerService.containsWMS(layer)) {

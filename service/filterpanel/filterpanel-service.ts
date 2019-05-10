@@ -1,6 +1,5 @@
 
 import {map} from 'rxjs/operators';
-import { environment } from '../../../../environments/environment';
 import { Injectable, Inject } from '@angular/core';
 import {HttpClient} from '@angular/common/http';
 import { Observable } from 'rxjs';
@@ -23,7 +22,7 @@ export class FilterPanelService {
       case 'xxx.do':
         return // VT: in the event we need special handling this.xxx(url);
       default:
-        return this.getRemoteParam(environment.portalBaseUrl + url);
+        return this.getRemoteParam(this.env.portalBaseUrl + url);
     }
   }
 
