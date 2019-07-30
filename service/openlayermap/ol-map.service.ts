@@ -253,6 +253,15 @@ export class OlMapService {
   }
 
   /**
+   * Set the opacity of a layer
+   * @param layerId the ID of the layer to change opacity
+   * @param opacity the value of opacity between 0.0 and 1.0
+   */
+  public setLayerOpacity(layerId: string, opacity: number) {
+    this.olMapObject.setLayerOpacity(layerId, opacity);
+  }
+
+  /**
    * Retrieve the active layer list
    */
   public getLayerModelList(): { [key: string]: LayerModel; } {
