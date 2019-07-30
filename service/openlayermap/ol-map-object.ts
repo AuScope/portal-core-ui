@@ -211,8 +211,10 @@ export class OlMapObject {
     }
   }
   
-  /*
-   *
+  /**
+   * Show/Hide the layer
+   * @param layerId the ID of the layer to show/hide
+   * @param visible if true, the layer will be visible, false will hide the layer
    */
   public setLayerVisibility(layerId: string, visible: boolean) {
     if (this.getLayerById(layerId) != null) {
@@ -222,7 +224,21 @@ export class OlMapObject {
         }
     }
   }
-  
+
+  /**
+   * Set a layer's opacity
+   * 
+   * @param layerId the ID of the layer to change opacity
+   * @param opacity the value of opacity between 0.0 and 1.0
+   */
+  public setLayerOpacity(layerId: string, opacity: number) {
+    if (this.getLayerById(layerId) != null) {
+      let layers: [olLayer] = this.getLayerById(layerId);
+      for(let layer of layers) {
+        layer.setOpacity(opacity);
+      }
+    }
+  }
 
   /**
   * Method for drawing a polygon shape on the map. e.g selecting a polygon bounding box on the map
