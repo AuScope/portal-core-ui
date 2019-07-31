@@ -349,5 +349,13 @@ export class OlMapService {
   public updateSize() {
     this.olMapObject.updateSize();
   }
+  
+  /**
+   * Change the OL Map's basemap
+   * @param baseMap the basemap's ID value (string)
+   */
+  public switchBaseMap(baseMap: string) {
+    this.olMapObject.switchBaseMap(baseMap);
+  }
 
 }
