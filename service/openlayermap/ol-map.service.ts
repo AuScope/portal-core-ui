@@ -271,7 +271,18 @@ export class OlMapService {
   public getAddLayerSubject(): Subject<LayerModel> {
     return this.addLayerSubject;
   }
-
+  
+  /**
+   * Set or modify a layer's source parameter.
+   * For example, to change the time position of a WMS layer:
+   *    setLayerSourceParam('TIME', '2003-08-08T00:00:00.000Z');
+   * @param param the source parameter name
+   * @param value the new source parameter value
+   */
+  public setLayerSourceParam(layerId: string, param: string, value: any) {
+	this.olMapObject.setLayerSourceParam(layerId, param, value);
+  }
+  
   /**
    * Fit the map to the extent that is provided
    * @param extent An array of numbers representing an extent: [minx, miny, maxx, maxy]
