@@ -239,7 +239,22 @@ export class OlMapObject {
       }
     }
   }
-
+  
+  /**
+   * Set or modify a layer's source parameter
+   * @param param the source parameter name
+   * @param value the new source parameter value
+   */
+  public setLayerSourceParam(layerId: string, param: string, value: any) {
+	const activelayers = this.getLayerById(layerId);
+    if (activelayers) {
+      activelayers.forEach(layer => {
+		layer.getSource().updateParams({[param]: value});
+      });
+      this.renderStatusService.resetLayer(layerId);
+    }
+  }
+  
   /**
   * Method for drawing a polygon shape on the map. e.g selecting a polygon bounding box on the map
   * @returns a observable object that triggers an event when the user complete the drawing
