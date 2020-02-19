@@ -9,4 +9,5 @@ export class OnlineResourceModel {
   url: string;
   version: string;
   geographicElements: any;
+  protocolRequest: string;
 }
