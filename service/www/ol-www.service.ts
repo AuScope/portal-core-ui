@@ -5,17 +5,17 @@ import { OnlineResourceModel } from '../../model/data/onlineresource.model';
 import { PrimitiveModel } from '../../model/data/primitive.model';
 import { LayerHandlerService } from '../cswrecords/layer-handler.service';
 import { OlMapObject } from '../openlayermap/ol-map-object';
-import olMap from 'ol/map';
-import olPoint from 'ol/geom/point';
-import olPolygon from 'ol/geom/polygon';
+import olMap from 'ol/Map';
+import olPoint from 'ol/geom/Point';
+import olPolygon from 'ol/geom/Polygon';
 import olProj from 'ol/proj';
-import olFeature from 'ol/feature';
-import olStyle from 'ol/style/style';
-import olStyleStroke from 'ol/style/stroke';
-import olStyleFill from 'ol/style/fill';
-import olIcon from 'ol/style/icon';
-import olLayerVector from 'ol/layer/vector';
-import olSourceVector from 'ol/source/vector';
+import olFeature from 'ol/Feature';
+import olStyle from 'ol/style/Style';
+import olStyleStroke from 'ol/style/Stroke';
+import olStyleFill from 'ol/style/Fill';
+import olIcon from 'ol/style/Icon';
+import olLayerVector from 'ol/layer/Vector';
+import olSourceVector from 'ol/source/Vector';
 import { Constants } from '../../utility/constants.service';
 import { RenderStatusService } from '../openlayermap/renderstatus/render-status.service';
 
@@ -27,7 +27,7 @@ export class OlWWWService {
 
   private map: olMap;
 
-  
+
   constructor(private layerHandlerService: LayerHandlerService,
               private renderStatusService: RenderStatusService,
               private olMapObject: OlMapObject, @Inject('env') private env) {
@@ -65,10 +65,10 @@ export class OlWWWService {
     // layer for each wfs layer. WMS may potentially contain more than 1 layer in the array. note the difference
     (<olLayerVector>this.olMapObject.getLayerById(layer.id)[0]).getSource().addFeature(feature);
   }
-  
-   
+
+
   public addPoloygon(layer: LayerModel, cswRecord: CSWRecordModel, primitive: PrimitiveModel): void {
-    
+
     const feature = new olFeature({
       geometry: new olPolygon([primitive.coords])
     });
@@ -107,11 +107,11 @@ export class OlWWWService {
                 });
         this.olMapObject.addLayerById(markerLayer, layer.id);
     }
-    
+
     const onlineResource = new OnlineResourceModel();
     onlineResource.url = 'Not applicable, rendering from www records';
     this.renderStatusService.addResource(layer, onlineResource);
-    
+
     for (const cswRecord of cswRecords) {
       // VT do some filter based on the parameter here
       const primitive = new PrimitiveModel();

@@ -13,5 +13,4 @@ Include the following dependency
         "@types/jquery": "^3.2.9",
         "ol": "^4.3.1",
         "ng-selectize": "^1.1.0",
-        "jquery": "^3.2.1",
-        "simplify": "^1.0.0"
+        "jquery": "^3.2.1"

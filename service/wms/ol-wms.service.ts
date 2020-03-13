@@ -1,21 +1,21 @@
-import { throwError as observableThrowError, Observable } from "rxjs";
+import { throwError as observableThrowError, Observable } from 'rxjs';
 
-import { catchError, map } from "rxjs/operators";
-import { Injectable, Inject } from "@angular/core";
-import { LayerModel } from "../../model/data/layer.model";
-import { OnlineResourceModel } from "../../model/data/onlineresource.model";
-import { LayerHandlerService } from "../cswrecords/layer-handler.service";
-import { OlMapObject } from "../openlayermap/ol-map-object";
-import { HttpClient, HttpHeaders, HttpParams } from "@angular/common/http";
-import olMap from "ol/map";
-import olTile from "ol/layer/tile";
-import olTileWMS from "ol/source/tilewms";
-import olProj from "ol/proj";
-import extent from "ol/extent";
-import { Constants } from "../../utility/constants.service";
-import { UtilitiesService } from "../../utility/utilities.service";
-import { RenderStatusService } from "../openlayermap/renderstatus/render-status.service";
-
+import { catchError, map } from 'rxjs/operators';
+import { Injectable, Inject } from '@angular/core';
+import { LayerModel } from '../../model/data/layer.model';
+import { OnlineResourceModel } from '../../model/data/onlineresource.model';
+import { LayerHandlerService } from '../cswrecords/layer-handler.service';
+import { OlMapObject } from '../openlayermap/ol-map-object';
+import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
+import olMap from 'ol/Map';
+import olTile from 'ol/layer/Tile';
+import olTileWMS from 'ol/source/TileWMS';
+import * as olProj from 'ol/proj';
+import * as extent from 'ol/extent';
+import { Constants } from '../../utility/constants.service';
+import { UtilitiesService } from '../../utility/utilities.service';
+import { RenderStatusService } from '../openlayermap/renderstatus/render-status.service';
+import { MinTenemStyleService } from '../../../services/style/wms/min-tenem-style.service';
 /**
  * Use OlMapService to add layer to map. This service class adds wms layer to the map
  */
@@ -27,7 +27,7 @@ export class OlWMSService {
     private olMapObject: OlMapObject,
     private http: HttpClient,
     private renderStatusService: RenderStatusService,
-    @Inject("env") private env
+    @Inject('env') private env
   ) {
     this.map = this.olMapObject.getMap();
   }
@@ -59,21 +59,21 @@ export class OlWMSService {
         param && param.featureType ? param.featureType : onlineResource.name,
       TILED: true,
       DISPLAYOUTSIDEMAXEXTENT: true,
-      FORMAT: "image/png",
+      FORMAT: 'image/png',
       TRANSPARENT: true,
-      VERSION: "1.3.0",
+      VERSION: '1.3.0',
       WIDTH: Constants.TILE_SIZE,
       HEIGHT: Constants.TILE_SIZE
     };
 
     if (sld_body) {
       if (this.wmsUrlTooLong(sld_body, layer)) {
-        params["sld_body"] = window.btoa(sld_body);
+        params['sld_body'] = window.btoa(sld_body);
       } else {
-        params["sld_body"] = sld_body;
+        params['sld_body'] = sld_body;
       }
     } else {
-      params["sldUrl"] = this.getSldUrl(layer, onlineResource, param);
+      params['sldUrl'] = this.getSldUrl(layer, onlineResource, param);
     }
     return params;
   }
@@ -95,20 +95,20 @@ export class OlWMSService {
         param && param.featureType ? param.featureType : onlineResource.name,
       TILED: true,
       DISPLAYOUTSIDEMAXEXTENT: true,
-      FORMAT: "image/png",
+      FORMAT: 'image/png',
       TRANSPARENT: true,
-      VERSION: "1.1.1",
+      VERSION: '1.1.1',
       WIDTH: Constants.TILE_SIZE,
       HEIGHT: Constants.TILE_SIZE
     };
     if (sld_body) {
       if (this.wmsUrlTooLong(sld_body, layer)) {
-        params["sld_body"] = window.btoa(sld_body);
+        params['sld_body'] = window.btoa(sld_body);
       } else {
-        params["sld_body"] = sld_body;
+        params['sld_body'] = sld_body;
       }
     } else {
-      params["sldUrl"] = this.getSldUrl(layer, onlineResource, param);
+      params['sldUrl'] = this.getSldUrl(layer, onlineResource, param);
     }
     return params;
   }
@@ -138,7 +138,7 @@ export class OlWMSService {
     if (usePost) {
       return this.http
         .get(this.env.portalBaseUrl + sldUrl, {
-          responseType: "text",
+          responseType: 'text',
           params: httpParams
         })
         .pipe(
@@ -150,10 +150,10 @@ export class OlWMSService {
       return this.http
         .post(this.env.portalBaseUrl + sldUrl, httpParams.toString(), {
           headers: new HttpHeaders().set(
-            "Content-Type",
-            "application/x-www-form-urlencoded"
+            'Content-Type',
+            'application/x-www-form-urlencoded'
           ),
-          responseType: "text"
+          responseType: 'text'
         })
         .pipe(
           map(response => {
@@ -174,7 +174,7 @@ export class OlWMSService {
     if (!param) {
       param = {};
     }
-    const filterUrl = "doNvclV2Filter.do";
+    const filterUrl = 'doNvclV2Filter.do';
     const usePost = this.wmsUrlTooLong(
       this.env.portalBaseUrl + filterUrl + param.toString(),
       layer
@@ -192,8 +192,8 @@ export class OlWMSService {
     httpParams = UtilitiesService.convertObjectToHttpParam(httpParams, param);
     if (usePost) {
       return this.http
-        .get(this.env.portalBaseUrl + "", {
-          responseType: "text",
+        .get(this.env.portalBaseUrl + '', {
+          responseType: 'text',
           params: httpParams
         })
         .pipe(
@@ -205,10 +205,10 @@ export class OlWMSService {
       return this.http
         .post(this.env.portalBaseUrl + filterUrl, httpParams.toString(), {
           headers: new HttpHeaders().set(
-            "Content-Type",
-            "application/x-www-form-urlencoded"
+            'Content-Type',
+            'application/x-www-form-urlencoded'
           ),
-          responseType: "text"
+          responseType: 'text'
         })
         .pipe(
           map(response => {
@@ -240,7 +240,7 @@ export class OlWMSService {
       );
       httpParams = UtilitiesService.convertObjectToHttpParam(httpParams, param);
 
-      return "/" + layer.proxyStyleUrl + "?" + httpParams.toString();
+      return '/' + layer.proxyStyleUrl + '?' + httpParams.toString();
     } else {
       return null;
     }
@@ -289,7 +289,7 @@ export class OlWMSService {
       this.getSldBody(layer.proxyStyleUrl, usePost, collatedParam).subscribe(
         response => {
           const me = this;
-          const params = wmsOnlineResource.version.startsWith("1.3")
+          const params = wmsOnlineResource.version.startsWith('1.3')
             ? this.getWMS1_3_0param(
                 layer,
                 wmsOnlineResource,
@@ -325,8 +325,8 @@ export class OlWMSService {
             ]);
             defaultExtent = olProj.transformExtent(
               lonlatextent,
-              "EPSG:4326",
-              "EPSG:3857"
+              'EPSG:4326',
+              'EPSG:3857'
             );
           } else {
             defaultExtent = this.map
@@ -340,8 +340,8 @@ export class OlWMSService {
               source: new olTileWMS({
                 url: wmsOnlineResource.url,
                 params: params,
-                serverType: "geoserver",
-                projection: "EPSG:3857", // VT: testing if this breaks anything. If not this will fix tas weird projection issue
+                serverType: 'geoserver',
+                projection: 'EPSG:3857', // VT: testing if this breaks anything. If not this will fix tas weird projection issue
                 tileLoadFunction: function(image, src) {
                   me.imagePostFunction(image, src);
                 }
@@ -353,8 +353,8 @@ export class OlWMSService {
               source: new olTileWMS({
                 url: wmsOnlineResource.url,
                 params: params,
-                serverType: "geoserver",
-                projection: "EPSG:3857", // VT: testing if this breaks anything. If not this will fix tas weird projection issue
+                serverType: 'geoserver',
+                projection: 'EPSG:3857', // VT: testing if this breaks anything. If not this will fix tas weird projection issue
                 maxGetUrlLength: 2048
               })
             });
@@ -365,15 +365,15 @@ export class OlWMSService {
           wmsTile.layer = layer;
 
           me.renderStatusService.register(layer, wmsOnlineResource);
-          wmsTile.getSource().on("tileloadstart", function(event) {
+          wmsTile.getSource().on('tileloadstart', function(event) {
             me.renderStatusService.addResource(layer, wmsOnlineResource);
           });
 
-          wmsTile.getSource().on("tileloadend", function(event) {
+          wmsTile.getSource().on('tileloadend', function(event) {
             me.renderStatusService.updateComplete(layer, wmsOnlineResource);
           });
 
-          wmsTile.getSource().on("tileloaderror", function(event) {
+          wmsTile.getSource().on('tileloaderror', function(event) {
             me.renderStatusService.updateComplete(
               layer,
               wmsOnlineResource,
@@ -391,46 +391,46 @@ export class OlWMSService {
    */
   public imagePostFunction(image, src) {
     const img = image.getImage();
-    const dataEntries = src.split("&");
-    const url = this.env.portalBaseUrl + "getWMSMapViaProxy.do?";
+    const dataEntries = src.split('&');
+    const url = this.env.portalBaseUrl + 'getWMSMapViaProxy.do?';
     const params = {};
     for (let i = 0; i < dataEntries.length; i++) {
       if (i === 0) {
-        params["url"] = dataEntries[i];
+        params['url'] = dataEntries[i];
       } else {
-        if (dataEntries[i].toLowerCase().indexOf("layers") >= 0) {
-          params["layer"] = decodeURIComponent(dataEntries[i].split("=")[1]);
+        if (dataEntries[i].toLowerCase().indexOf('layers') >= 0) {
+          params['layer'] = decodeURIComponent(dataEntries[i].split('=')[1]);
         }
-        if (dataEntries[i].toLowerCase().indexOf("bbox") >= 0) {
-          params["bbox"] = decodeURIComponent(dataEntries[i].split("=")[1]);
+        if (dataEntries[i].toLowerCase().indexOf('bbox') >= 0) {
+          params['bbox'] = decodeURIComponent(dataEntries[i].split('=')[1]);
         }
-        if (dataEntries[i].toLowerCase().indexOf("sldurl") >= 0) {
-          params["sldUrl"] = decodeURIComponent(dataEntries[i].split("=")[1]);
+        if (dataEntries[i].toLowerCase().indexOf('sldurl') >= 0) {
+          params['sldUrl'] = decodeURIComponent(dataEntries[i].split('=')[1]);
         }
-        if (dataEntries[i].toLowerCase().indexOf("sld_body") >= 0) {
+        if (dataEntries[i].toLowerCase().indexOf('sld_body') >= 0) {
           const sldBodyBase64 = decodeURIComponent(
-            dataEntries[i].split("=")[1]
+            dataEntries[i].split('=')[1]
           );
-          params["sldBody"] = window.atob(sldBodyBase64);
+          params['sldBody'] = window.atob(sldBodyBase64);
         }
-        if (dataEntries[i].toLowerCase().indexOf("version") >= 0) {
-          params["version"] = decodeURIComponent(dataEntries[i].split("=")[1]);
+        if (dataEntries[i].toLowerCase().indexOf('version') >= 0) {
+          params['version'] = decodeURIComponent(dataEntries[i].split('=')[1]);
         }
         if (
-          dataEntries[i].toLowerCase().indexOf("crs") === 0 ||
-          dataEntries[i].toLowerCase().indexOf("srs") === 0
+          dataEntries[i].toLowerCase().indexOf('crs') === 0 ||
+          dataEntries[i].toLowerCase().indexOf('srs') === 0
         ) {
-          params["crs"] = decodeURIComponent(dataEntries[i].split("=")[1]);
+          params['crs'] = decodeURIComponent(dataEntries[i].split('=')[1]);
         }
-        if (dataEntries[i].toLowerCase().indexOf("tiled") >= 0) {
-          params["tiled"] = decodeURIComponent(dataEntries[i].split("=")[1]);
+        if (dataEntries[i].toLowerCase().indexOf('tiled') >= 0) {
+          params['tiled'] = decodeURIComponent(dataEntries[i].split('=')[1]);
         }
       }
     }
     const xhr = new XMLHttpRequest();
-    xhr.open("POST", url, true);
+    xhr.open('POST', url, true);
 
-    xhr.responseType = "arraybuffer";
+    xhr.responseType = 'arraybuffer';
     xhr.onload = function(e) {
       if (xhr.status === 200) {
         const uInt8Array = new Uint8Array(xhr.response);
@@ -439,14 +439,14 @@ export class OlWMSService {
         while (i--) {
           binaryString[i] = String.fromCharCode(uInt8Array[i]);
         }
-        const data = binaryString.join("");
-        const type = xhr.getResponseHeader("content-type");
-        if (type.indexOf("image") === 0) {
-          img.src = "data:" + type + ";base64," + window.btoa(data);
+        const data = binaryString.join('');
+        const type = xhr.getResponseHeader('content-type');
+        if (type.indexOf('image') === 0) {
+          img.src = 'data:' + type + ';base64,' + window.btoa(data);
         }
       }
     };
-    xhr.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+    xhr.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
     xhr.send($.param(params));
   }
 }

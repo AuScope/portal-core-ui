@@ -435,7 +435,7 @@ export class UtilitiesService {
             }
           }
         }
-	  }
+      }
       return httpParam;
     }
 
@@ -460,5 +460,13 @@ export class UtilitiesService {
       }
       return false;
     }
+
+  /**
+   * Returns true iff (if and only if) this is an ESRI ArcGIS server
+   * @param onlineResource online resource record for service
+   */
+  public static isArcGIS(onlineResource: OnlineResourceModel) {
+    return (onlineResource.applicationProfile && onlineResource.applicationProfile.indexOf('Esri:ArcGIS Server') > -1);
+  }
 
 }
