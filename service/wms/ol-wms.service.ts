@@ -15,7 +15,6 @@ import * as extent from 'ol/extent';
 import { Constants } from '../../utility/constants.service';
 import { UtilitiesService } from '../../utility/utilities.service';
 import { RenderStatusService } from '../openlayermap/renderstatus/render-status.service';
-import { MinTenemStyleService } from '../../../services/style/wms/min-tenem-style.service';
 /**
  * Use OlMapService to add layer to map. This service class adds wms layer to the map
  */
