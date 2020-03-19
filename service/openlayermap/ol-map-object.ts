@@ -101,28 +101,8 @@ export class OlMapObject {
         zoom: 4
       })
     });
-    // Added ol-geocoder controller into map.
-    const GC = new  G('nominatim', {
-      provider: 'bing',
-      key: 'AgfoWboIfoy68Vu38c2RE83rEEuvWKjQWV37g7stRUAPcDiGALCEKHefrDyWn1zM',
-      lang: 'en',
-      placeholder: 'search',
-      limit: 5,
-      autoComplete: true,
-      keepOpen: true
-    });
-    const geocoderSource = GC.getSource();
     const me = this;
-    GC.on('addresschosen', function (evt) {
-      const coord = evt.coordinate;
-      if (coord) {
-        geocoderSource.clear();
-        geocoderSource.addFeature(evt.feature); // add only the last one
-        me.map.getView().setCenter(coord);
-        me.map.getView().setZoom(9);
-      }
-    });
-    this.map.addControl(GC);
+
     // Call a list of functions when the map is clicked on
     this.map.on('click', function(evt) {
       if (me.ignoreMapClick) {
@@ -135,6 +115,30 @@ export class OlMapObject {
     });
 
   }
+public addGeocoderToMap() {
+      // Added ol-geocoder controller into map.
+      const GC = new  G('nominatim', {
+        provider: 'bing',
+        key: 'AgfoWboIfoy68Vu38c2RE83rEEuvWKjQWV37g7stRUAPcDiGALCEKHefrDyWn1zM',
+        lang: 'en',
+        placeholder: 'search',
+        limit: 5,
+        autoComplete: true,
+        keepOpen: true
+      });
+      const geocoderSource = GC.getSource();
+      const me = this;
+      GC.on('addresschosen', function (evt) {
+        const coord = evt.coordinate;
+        if (coord) {
+          geocoderSource.clear();
+          geocoderSource.addFeature(evt.feature); // add only the last one
+          me.map.getView().setCenter(coord);
+          me.map.getView().setZoom(9);
+        }
+      });
+      this.map.addControl(GC);
+}
 
   public switchBaseMap(newstyle: string): void {
       for (let i = 0; i < this.baseLayers.length; ++i) {
