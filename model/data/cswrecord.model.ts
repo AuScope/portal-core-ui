@@ -1,4 +1,5 @@
 import { OnlineResourceModel } from './onlineresource.model';
+import { TemporalExtentModel } from './temporal-extent.model';
 
 /**
  * A representation of a csw record
@@ -23,4 +24,5 @@ export class CSWRecordModel {
   resourceProvider: string;
   service: boolean;
   expanded = false;
+  temporalExtent?: TemporalExtentModel;
 }
