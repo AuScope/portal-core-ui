@@ -72,7 +72,7 @@ export class OlMapService {
                    for (const activeLayer of activeLayers[layerId]) {
                        if (layer === activeLayer) {
                            const layerModel = me.getLayerModel(layerId);
-                           if (!this.layerHandlerService.containsWMS(layerModel)) {
+                           if (!me.layerHandlerService.containsWMS(layerModel)) {
                              continue;
                            }
                            for (const cswRecord of layerModel.cswRecords) {
