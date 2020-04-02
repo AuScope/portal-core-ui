@@ -1,30 +1,32 @@
-import { RenderStatusService } from './renderstatus/render-status.service';
-import { Constants } from '../../utility/constants.service';
-import { Injectable, Inject } from '@angular/core';
-import olMap from 'ol/map';
-import olTile from 'ol/layer/tile';
-import olOSM from 'ol/source/osm';
-import olView from 'ol/view';
-import olLayer from 'ol/layer/layer';
-import olSourceVector from 'ol/source/vector';
-import olFormatGML2 from 'ol/format/gml2';
-import olLayerVector from 'ol/layer/vector';
-import XYZ from 'ol/source/xyz';
-import TileLayer from 'ol/layer/tile';
-import olGeomPolygon from 'ol/geom/polygon';
-import BingMaps from 'ol/source/bingmaps';
-import olDraw from 'ol/interaction/draw';
+import {RenderStatusService} from './renderstatus/render-status.service';
+import {Constants} from '../../utility/constants.service';
+import {Injectable , Inject} from '@angular/core';
+import olMap from 'ol/Map';
+import olTile from 'ol/layer/Tile';
+import olOSM from 'ol/source/OSM';
+import olView from 'ol/View';
+import olLayer from 'ol/layer/Layer';
+import olSourceVector from 'ol/source/Vector';
+import olFormatGML2 from 'ol/format/GML2';
+import olLayerVector from 'ol/layer/Vector';
+import XYZ from 'ol/source/XYZ';
+import TileLayer from 'ol/layer/Tile';
+import olGeomPolygon from 'ol/geom/Polygon';
+import BingMaps from 'ol/source/BingMaps';
+import olDraw, { createBox } from 'ol/interaction/Draw';
 import olControl from 'ol/control';
-import olStyleStyle from 'ol/style/style';
-import olStyleCircle from 'ol/style/circle';
-import olStyleFill from 'ol/style/fill';
-import olStyleStroke from 'ol/style/stroke';
-import olGeomPoint from 'ol/geom/point';
-import olFeature from 'ol/feature';
-import olEasing from 'ol/easing';
-import olObservable from 'ol/observable';
-import { Subject , BehaviorSubject } from 'rxjs';
-import olExtent from 'ol/extent';
+import olStyleStyle from 'ol/style/Style';
+import olStyleCircle from 'ol/style/Circle';
+import olStyleFill from 'ol/style/Fill';
+import olStyleStroke from 'ol/style/Stroke';
+import olGeomPoint from 'ol/geom/Point';
+import olFeature from 'ol/Feature';
+import * as olExtent from 'ol/extent';
+import * as olEasing from 'ol/easing';
+import {unByKey} from 'ol/Observable';
+import { Subject , BehaviorSubject} from 'rxjs';
+import * as G from 'ol-geocoder';
+import {getVectorContext} from 'ol/render';
 
 export interface BaseMapLayerOption {
   value: string;
@@ -98,9 +100,9 @@ export class OlMapObject {
         zoom: 4
       })
     });
+    const me = this;
 
     // Call a list of functions when the map is clicked on
-    const me = this;
     this.map.on('click', function(evt) {
       if (me.ignoreMapClick) {
         return;
@@ -111,6 +113,30 @@ export class OlMapObject {
       }
     });
 
+  }
+public addGeocoderToMap() {
+      // Added ol-geocoder controller into map.
+      const GC = new  G('nominatim', {
+        provider: 'bing',
+        key: 'AgfoWboIfoy68Vu38c2RE83rEEuvWKjQWV37g7stRUAPcDiGALCEKHefrDyWn1zM',
+        lang: 'en',
+        placeholder: 'search',
+        limit: 5,
+        autoComplete: true,
+        keepOpen: true
+      });
+      const geocoderSource = GC.getSource();
+      const me = this;
+      GC.on('addresschosen', function (evt) {
+        const coord = evt.coordinate;
+        if (coord) {
+          geocoderSource.clear();
+          geocoderSource.addFeature(evt.feature); // add only the last one
+          me.map.getView().setCenter(coord);
+          me.map.getView().setZoom(9);
+        }
+      });
+      this.map.addControl(GC);
   }
 
   public switchBaseMap(newstyle: string): void {
@@ -141,21 +167,21 @@ export class OlMapObject {
   public getMap(): olMap {
     return this.map;
   }
-  
+
   /**
    * Zoom the map in one level
    */
   public zoomIn(): void {
     this.map.getView().setZoom(this.map.getView().getZoom() + 1);
   }
-  
+
   /**
    * Zoom the map out one level
    */
   public zoomOut(): void {
     this.map.getView().setZoom(this.map.getView().getZoom() - 1);
   }
-  
+
   /**
    * Add an ol layer to the ol map. At the same time keep a reference map of the layers
    * @param layer: the ol layer to add to map
@@ -210,7 +236,7 @@ export class OlMapObject {
       this.renderStatusService.resetLayer(id);
     }
   }
-  
+
   /**
    * Show/Hide the layer
    * @param layerId the ID of the layer to show/hide
@@ -218,8 +244,8 @@ export class OlMapObject {
    */
   public setLayerVisibility(layerId: string, visible: boolean) {
     if (this.getLayerById(layerId) != null) {
-        let layers: [olLayer] = this.getLayerById(layerId);
-        for(let layer of layers) {
+        const layers: [olLayer] = this.getLayerById(layerId);
+        for (const layer of layers) {
             layer.setVisible(visible);
         }
     }
@@ -227,34 +253,33 @@ export class OlMapObject {
 
   /**
    * Set a layer's opacity
-   * 
+   *
    * @param layerId the ID of the layer to change opacity
    * @param opacity the value of opacity between 0.0 and 1.0
    */
   public setLayerOpacity(layerId: string, opacity: number) {
     if (this.getLayerById(layerId) != null) {
-      let layers: [olLayer] = this.getLayerById(layerId);
-      for(let layer of layers) {
+      const layers: [olLayer] = this.getLayerById(layerId);
+      for (const layer of layers) {
         layer.setOpacity(opacity);
       }
     }
   }
-  
+
   /**
    * Set or modify a layer's source parameter
    * @param param the source parameter name
    * @param value the new source parameter value
    */
   public setLayerSourceParam(layerId: string, param: string, value: any) {
-	const activelayers = this.getLayerById(layerId);
+  const activelayers = this.getLayerById(layerId);
     if (activelayers) {
       activelayers.forEach(layer => {
-		layer.getSource().updateParams({[param]: value});
+        layer.getSource().updateParams({[param]: value});
       });
       this.renderStatusService.resetLayer(layerId);
     }
   }
-  
   /**
   * Method for drawing a polygon shape on the map. e.g selecting a polygon bounding box on the map
   * @returns a observable object that triggers an event when the user complete the drawing
@@ -352,7 +377,7 @@ export class OlMapObject {
     const draw = new olDraw({
       source: source,
       type: /** @type {ol.geom.GeometryType} */ ('Circle'),
-      geometryFunction: olDraw.createBox()
+      geometryFunction: createBox()
     });
     const me = this;
     draw.on('drawend', function() {
@@ -401,7 +426,7 @@ export class OlMapObject {
         let listenerKey;
 
         function animate(event) {
-          const vectorContext = event.vectorContext;
+          const vectorContext = getVectorContext(event);
           const frameState = event.frameState;
           const flashGeom = feature.getGeometry().clone();
           const elapsed = frameState.time - start;
@@ -424,13 +449,13 @@ export class OlMapObject {
           vectorContext.setStyle(style);
           vectorContext.drawGeometry(flashGeom);
           if (elapsed > 3000) {
-            olObservable.unByKey(listenerKey);
+            unByKey(listenerKey);
             return;
           }
           // tell OpenLayers to continue postcompose animation
           me.map.render();
         }
-        listenerKey = me.map.on('postcompose', animate);
+        listenerKey = vector.on('postrender', animate);
       }
 
       source.on('addfeature', function(e) {
@@ -440,7 +465,7 @@ export class OlMapObject {
 
     return vector;
   }
-  
+
   /**
    * Return the extent of the entire map
    * @returns an olExtent object representing the bounds of the map
@@ -460,11 +485,11 @@ export class OlMapObject {
     const source = new olSourceVector({wrapX: false});
     source.addFeature(feature);
     // TODO: Styling
-    let vector = new olLayerVector({
+    const vector = new olLayerVector({
       source: source
     });
     this.map.addLayer(vector);
-    if(duration !== undefined && duration !== -1) {
+    if (duration !== undefined && duration !== -1) {
         setTimeout(() => {
           this.removeVector(vector);
         }, duration);
@@ -498,8 +523,7 @@ export class OlMapObject {
     this.map.getView().setZoom(mapState.zoom);
     this.map.getView().setCenter(mapState.center);
   }
-  
-  
+
   /**
    * Call updateSize on the map to handle scale changes
    */
