@@ -1,6 +1,6 @@
 import { CSWRecordModel } from '../../model/data/cswrecord.model';
 import { Injectable, Inject } from '@angular/core';
-import olExtent from 'ol/extent';
+import * as olExtent from 'ol/extent';
 import olLayerVector from 'ol/layer/Vector';
 import olLayer from 'ol/layer/Layer';
 import olFeature from 'ol/Feature';

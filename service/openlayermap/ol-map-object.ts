@@ -21,8 +21,7 @@ import olStyleFill from 'ol/style/Fill';
 import olStyleStroke from 'ol/style/Stroke';
 import olGeomPoint from 'ol/geom/Point';
 import olFeature from 'ol/Feature';
-import olExtent from 'ol/extent';
-import olOverlay from 'ol/Overlay';
+import * as olExtent from 'ol/extent';
 import * as olEasing from 'ol/easing';
 import {unByKey} from 'ol/Observable';
 import { Subject , BehaviorSubject} from 'rxjs';
@@ -138,7 +137,7 @@ public addGeocoderToMap() {
         }
       });
       this.map.addControl(GC);
-}
+  }
 
   public switchBaseMap(newstyle: string): void {
       for (let i = 0; i < this.baseLayers.length; ++i) {

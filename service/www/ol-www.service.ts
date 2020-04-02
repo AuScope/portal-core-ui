@@ -8,7 +8,7 @@ import { OlMapObject } from '../openlayermap/ol-map-object';
 import olMap from 'ol/Map';
 import olPoint from 'ol/geom/Point';
 import olPolygon from 'ol/geom/Polygon';
-import olProj from 'ol/proj';
+import * as olProj from 'ol/proj';
 import olFeature from 'ol/Feature';
 import olStyle from 'ol/style/Style';
 import olStyleStroke from 'ol/style/Stroke';
