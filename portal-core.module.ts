@@ -1,10 +1,7 @@
 import { NgModule, Optional, SkipSelf, ModuleWithProviders } from '@angular/core';
 import { HttpClientModule } from '@angular/common/http';
 import { FormsModule } from '@angular/forms';
-import {HttpModule} from '@angular/http';
 import { BrowserModule } from '@angular/platform-browser';
-
-
 
 
 // Services
@@ -28,7 +25,6 @@ import { QueryWMSService} from './service/wms/query-wms.service';
 import { QueryWFSService} from './service/wfs/query-wfs.service';
 
 
-
 // Directives
 import { ImgLoadingDirective } from './uiutilities/imgloading.directive';
 import { StopPropagationDirective } from './utility/utilities.directives';
@@ -43,11 +39,10 @@ import { SelectMapBoundingComponent } from './widget/selectmap.bounding';
   imports: [
     HttpClientModule,
     BrowserModule,
-    FormsModule,
-    HttpModule
+    FormsModule
   ],
   exports: [ImgLoadingDirective, StopPropagationDirective,
-    HttpClientModule, BrowserModule, FormsModule, HttpModule, SelectMapBoundingComponent],
+    HttpClientModule, BrowserModule, FormsModule, SelectMapBoundingComponent],
   providers: [LayerHandlerService,
     OlWMSService,
     OlMapObject,
@@ -88,7 +83,5 @@ export class PortalCoreModule {
         'CoreModule is already loaded. Import it in the AppModule only');
     }
   }
-
-
 
 }
