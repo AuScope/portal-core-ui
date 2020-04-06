@@ -10,14 +10,14 @@ import { PrimitiveModel } from '../../model/data/primitive.model';
 import { LayerHandlerService } from '../cswrecords/layer-handler.service';
 import { OlMapObject } from '../openlayermap/ol-map-object';
 import {HttpClient, HttpParams} from '@angular/common/http';
-import olMap from 'ol/Map';
-import olPoint from 'ol/geom/Point';
-import * as olProj from 'ol/proj';
-import olFeature from 'ol/Feature';
-import olStyle from 'ol/style/Style';
-import olIcon from 'ol/style/Icon';
-import olLayerVector from 'ol/layer/Vector';
-import olSourceVector from 'ol/source/Vector';
+import Map from 'ol/Map';
+import Point from 'ol/geom/Point';
+import * as Proj from 'ol/proj';
+import Feature from 'ol/Feature';
+import Style from 'ol/style/Style';
+import Icon from 'ol/style/Icon';
+import VectorLayer from 'ol/layer/Vector';
+import VectorSource from 'ol/source/Vector';
 import { GMLParserService } from '../../utility/gmlparser.service';
 import { Constants } from '../../utility/constants.service';
 import { UtilitiesService } from '../../utility/utilities.service';
@@ -29,7 +29,7 @@ import { RenderStatusService } from '../openlayermap/renderstatus/render-status.
 @Injectable()
 export class OlWFSService {
 
-  private map: olMap;
+  private map: Map;
 
   constructor(private layerHandlerService: LayerHandlerService,
                   private olMapObject: OlMapObject,
@@ -80,11 +80,11 @@ export class OlWFSService {
    * @param primitive the point primitive
    */
   public addPoint(layer: LayerModel, onlineResource: OnlineResourceModel, primitive: PrimitiveModel): void {
-     const geom = new olPoint(olProj.transform([primitive.coords.lng, primitive.coords.lat], 'EPSG:4326', 'EPSG:3857'));
-       const feature = new olFeature(geom);
+     const geom = new Point(Proj.transform([primitive.coords.lng, primitive.coords.lat], 'EPSG:4326', 'EPSG:3857'));
+       const feature = new Feature(geom);
        feature.setStyle([
-          new olStyle({
-             image: new olIcon(({
+          new Style({
+             image: new Icon(({
                      anchor: [0.5, 1],
                      anchorXUnits: 'fraction',
                      anchorYUnits: 'fraction',
@@ -103,7 +103,7 @@ export class OlWFSService {
        feature.layer = layer;
     // VT: we chose the first layer in the array based on the assumption that we only create a single vector
     // layer for each wfs layer. WMS may potentially contain more than 1 layer in the array. note the difference
-    (<olLayerVector>this.olMapObject.getLayerById(layer.id)[0]).getSource().addFeature(feature);
+    (<VectorLayer>this.olMapObject.getLayerById(layer.id)[0]).getSource().addFeature(feature);
   }
 
   public addLine(primitive: PrimitiveModel): void {
@@ -124,8 +124,8 @@ export class OlWFSService {
 
     // VT: create the vector on the map if it does not exist.
     if (!this.olMapObject.getLayerById(layer.id)) {
-        const markerLayer = new olLayerVector({
-                    source: new olSourceVector({ features: []})
+        const markerLayer = new VectorLayer({
+                    source: new VectorSource({ features: []})
                 });
 
         this.olMapObject.addLayerById(markerLayer, layer.id);

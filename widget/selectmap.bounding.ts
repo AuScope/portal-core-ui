@@ -6,18 +6,18 @@ import { OnlineResourceModel } from '../model/data/onlineresource.model';
 import { LayerHandlerService } from '../service/cswrecords/layer-handler.service';
 import { Constants } from '../utility/constants.service';
 import { Component, ElementRef, AfterViewInit, ViewChild, Output, EventEmitter, Input, Inject } from '@angular/core';
-import olMap from 'ol/Map';
-import olTile from 'ol/layer/Tile';
-import olOSM from 'ol/source/OSM';
-import olView from 'ol/View';
-import olSourceVector from 'ol/source/Vector';
-import olLayerVector from 'ol/layer/Vector';
-import olDraw from 'ol/interaction/Draw';
-import * as olControl from 'ol/control';
-import * as olProj from 'ol/proj';
+import Map from 'ol/Map';
+import Tile from 'ol/layer/Tile';
+import OSM from 'ol/source/OSM';
+import View from 'ol/View';
+import VectorSource from 'ol/source/Vector';
+import VectorLayer from 'ol/layer/Vector';
+import Draw from 'ol/interaction/Draw';
+import * as Control from 'ol/control';
+import * as Proj from 'ol/proj';
 import {BehaviorSubject,  Observable } from 'rxjs';
 import { HttpClient } from '@angular/common/http';
-import olTileWMS from 'ol/source/TileWMS';
+import TileWMS from 'ol/source/TileWMS';
 
 @Component({
   selector: 'app-map-bbox',
@@ -43,17 +43,17 @@ export class SelectMapBoundingComponent implements AfterViewInit {
   // After view init the map target can be set!
   ngAfterViewInit() {
 
-    const osm_layer: any = new olTile({
-      source: new olOSM()
+    const osm_layer: any = new Tile({
+      source: new OSM()
     });
-    this.map = new olMap({
-      controls: olControl.defaults({
+    this.map = new Map({
+      controls: Control.defaults({
           attributionOptions: ({
             collapsible: false
           })
         }),
       layers: [osm_layer],
-      view: new olView({
+      view: new View({
         center: this.defaultlatlon,
         zoom: this.defaultzoom
       })
@@ -89,25 +89,25 @@ export class SelectMapBoundingComponent implements AfterViewInit {
     });
   }
 
-  public drawBox(): BehaviorSubject<olLayerVector> {
+  public drawBox(): BehaviorSubject<VectorLayer> {
 
     if (this.vector) {
       this.map.removeLayer(this.vector);
     }
 
-    const source = new olSourceVector({wrapX: false});
+    const source = new VectorSource({wrapX: false});
 
-    this.vector = new olLayerVector({
+    this.vector = new VectorLayer({
       source: source
     });
 
-    const vectorBS = new BehaviorSubject<olLayerVector>(this.vector);
+    const vectorBS = new BehaviorSubject<VectorLayer>(this.vector);
 
     this.map.addLayer(this.vector);
-    const draw = new olDraw({
+    const draw = new Draw({
       source: source,
       type: /** @type {ol.geom.GeometryType} */ ('Circle'),
-      geometryFunction: olDraw.createBox()
+      geometryFunction: Draw.createBox()
     });
     const me = this;
     draw.on('drawend', function() {
@@ -154,13 +154,13 @@ export class SelectMapBoundingComponent implements AfterViewInit {
         let defaultExtent;
 
         const cswExtent = wmsOnlineResource.geographicElements[0];
-        defaultExtent = olProj.transformExtent([cswExtent.westBoundLongitude, cswExtent.southBoundLatitude,
+        defaultExtent = Proj.transformExtent([cswExtent.westBoundLongitude, cswExtent.southBoundLatitude,
         cswExtent.eastBoundLongitude, cswExtent.northBoundLatitude], 'EPSG:4326', 'EPSG:3857');
 
 
-        wmsTile = new olTile({
+        wmsTile = new Tile({
           extent: defaultExtent,
-          source: new olTileWMS({
+          source: new TileWMS({
             url: wmsOnlineResource.url,
             params: params,
             serverType: 'geoserver',

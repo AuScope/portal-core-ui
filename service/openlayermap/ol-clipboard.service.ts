@@ -1,8 +1,8 @@
 import {Injectable, Inject} from '@angular/core';
 import {BehaviorSubject} from 'rxjs';
-import * as olProj from 'ol/proj';
+import * as Proj from 'ol/proj';
 import { OlMapObject } from './ol-map-object';
-import olLayerVector from 'ol/layer/Vector';
+import VectorLayer from 'ol/layer/Vector';
 import { Constants } from '../../../portal-core-ui/utility/constants.service';
 
 /**
@@ -13,7 +13,7 @@ export class OlClipboardService {
   private polygonBBox: Polygon;
   public polygonsBS: BehaviorSubject<Polygon>;
 
-  public vectorOnMap: olLayerVector;
+  public vectorOnMap: VectorLayer;
 
   private bShowClipboard: Boolean = false;
   public clipboardBS = new BehaviorSubject<Boolean>(this.bShowClipboard);
@@ -104,7 +104,7 @@ export class OlClipboardService {
       const coords = [];
       // transform from 'EPSG:4326'to 'EPSG:3857' format
       for (let i = 0; i < coordsArray.length; i += 2) {
-        const point = olProj.transform([parseFloat(coordsArray[i]), parseFloat(coordsArray[i + 1])], newPolygon.srs , 'EPSG:3857');
+        const point = Proj.transform([parseFloat(coordsArray[i]), parseFloat(coordsArray[i + 1])], newPolygon.srs , 'EPSG:3857');
         coords.push({'x': point[0], 'y': point[1]});
       }
       newPolygon.srs = 'EPSG:3857';
@@ -140,5 +140,5 @@ export interface Polygon {
   geometryType: string,
   coordinates: string,
   raw?: string,
-  olvector?: olLayerVector
+  olvector?: VectorLayer
 }

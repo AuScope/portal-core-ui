@@ -7,17 +7,17 @@ import { PrimitiveModel } from '../../model/data/primitive.model';
 import { LayerHandlerService } from '../cswrecords/layer-handler.service';
 import { OlMapObject } from '../openlayermap/ol-map-object';
 import { HttpClient } from '@angular/common/http';
-import olMap from 'ol/Map';
-import olPoint from 'ol/geom/Point';
-import olPolygon from 'ol/geom/Polygon';
-import * as olProj from 'ol/proj';
-import olFeature from 'ol/Feature';
-import olStyle from 'ol/style/Style';
-import olIcon from 'ol/style/Icon';
-import olLayerVector from 'ol/layer/Vector';
-import olSourceVector from 'ol/source/Vector';
-import olStyleStroke from 'ol/style/Stroke';
-import olStyleFill from 'ol/style/Fill';
+import Map from 'ol/Map';
+import Point from 'ol/geom/Point';
+import Polygon from 'ol/geom/Polygon';
+import * as Proj from 'ol/proj';
+import Feature from 'ol/Feature';
+import Style from 'ol/style/Style';
+import Icon from 'ol/style/Icon';
+import VectorLayer from 'ol/layer/Vector';
+import VectorSource from 'ol/source/Vector';
+import Stroke from 'ol/style/Stroke';
+import Fill from 'ol/style/Fill';
 import { Constants } from '../../utility/constants.service';
 import { RenderStatusService } from '../openlayermap/renderstatus/render-status.service';
 
@@ -31,7 +31,7 @@ export class OlCSWService {
   // so that the querier will be able to know which layer have been rendered as csw
   public static cswDiscoveryRendered = [];
 
-  private map: olMap;
+  private map: Map;
 
   constructor(private layerHandlerService: LayerHandlerService,
                   private olMapObject: OlMapObject,
@@ -47,11 +47,11 @@ export class OlCSWService {
    * @param primitive the point primitive
    */
   public addPoint(layer: LayerModel, cswRecord: CSWRecordModel, primitive: PrimitiveModel): void {
-     const geom = new olPoint(olProj.transform([primitive.coords.lng, primitive.coords.lat], (primitive.srsName ? primitive.srsName : 'EPSG:4326'), 'EPSG:3857'));
-       const feature = new olFeature(geom);
+     const geom = new Point(Proj.transform([primitive.coords.lng, primitive.coords.lat], (primitive.srsName ? primitive.srsName : 'EPSG:4326'), 'EPSG:3857'));
+       const feature = new Feature(geom);
        feature.setStyle([
-          new olStyle({
-             image: new olIcon(({
+          new Style({
+             image: new Icon(({
                      anchor: [0.5, 1],
                      anchorXUnits: 'fraction',
                      anchorYUnits: 'fraction',
@@ -70,7 +70,7 @@ export class OlCSWService {
        feature.layer = layer;
     // VT: we chose the first layer in the array based on the assumption that we only create a single vector
     // layer for each wfs layer. WMS may potentially contain more than 1 layer in the array. note the difference
-    (<olLayerVector>this.olMapObject.getLayerById(layer.id)[0]).getSource().addFeature(feature);
+    (<VectorLayer>this.olMapObject.getLayerById(layer.id)[0]).getSource().addFeature(feature);
     if (!OlCSWService.cswDiscoveryRendered.includes(feature.layer.id)) {
       OlCSWService.cswDiscoveryRendered.push(layer.id);
     }
@@ -82,19 +82,19 @@ export class OlCSWService {
 
   public addPoloygon(layer: LayerModel, cswRecord: CSWRecordModel, primitive: PrimitiveModel): void {
 
-    const feature = new olFeature({
-      geometry: new olPolygon([primitive.coords])
+    const feature = new Feature({
+      geometry: new Polygon([primitive.coords])
     });
 
     feature.getGeometry().transform((primitive.srsName ? primitive.srsName : 'EPSG:4326'), 'EPSG:3857');
 
     feature.setStyle([
-      new olStyle({
-        stroke: new olStyleStroke({
+      new Style({
+        stroke: new Stroke({
           color: Constants.getMatchingPolygonColor(layer.iconUrl),
           width: 3
         }),
-        fill: new olStyleFill({
+        fill: new Fill({
           color: 'rgba(0, 0, 255, 0.1)'
         })
       })
@@ -106,7 +106,7 @@ export class OlCSWService {
     feature.cswRecord = cswRecord;
     feature.layer = layer;
 
-    (<olLayerVector>this.olMapObject.getLayerById(layer.id)[0]).getSource().addFeature(feature);
+    (<VectorLayer>this.olMapObject.getLayerById(layer.id)[0]).getSource().addFeature(feature);
     if (!OlCSWService.cswDiscoveryRendered.includes(feature.layer.id)) {
       OlCSWService.cswDiscoveryRendered.push(layer.id);
     }
@@ -122,8 +122,8 @@ export class OlCSWService {
 
     // VT: create the vector on the map if it does not exist.
     if (!this.olMapObject.getLayerById(layer.id)) {
-        const markerLayer = new olLayerVector({
-                    source: new olSourceVector({ features: []})
+        const markerLayer = new VectorLayer({
+                    source: new VectorSource({ features: []})
                 });
 
         this.olMapObject.addLayerById(markerLayer, layer.id);

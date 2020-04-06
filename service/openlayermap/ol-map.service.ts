@@ -1,11 +1,11 @@
 import { CSWRecordModel } from '../../model/data/cswrecord.model';
 import { Injectable, Inject } from '@angular/core';
-import * as olExtent from 'ol/extent';
-import olLayerVector from 'ol/layer/Vector';
-import olLayer from 'ol/layer/Layer';
-import olFeature from 'ol/Feature';
-import * as olProj from 'ol/proj';
-import {BehaviorSubject,  Subject } from 'rxjs';
+import * as Extent from 'ol/extent';
+import VectorLayer from 'ol/layer/Vector';
+import Layer from 'ol/layer/Layer';
+import Feature from 'ol/Feature';
+import * as Proj from 'ol/proj';
+import { BehaviorSubject,  Subject } from 'rxjs';
 import { point } from '@turf/helpers';
 import * as inside from '@turf/inside';
 import * as bboxPolygon from '@turf/bbox-polygon';
@@ -58,13 +58,13 @@ export class OlMapService {
            // Convert pixel coords to map coords
            const map = this.olMapObject.getMap();
            const clickCoord = map.getCoordinateFromPixel(pixel);
-           const lonlat = olProj.transform(clickCoord, 'EPSG:3857', 'EPSG:4326');
+           const lonlat = Proj.transform(clickCoord, 'EPSG:3857', 'EPSG:4326');
            const clickPoint = point(lonlat);
 
            // Compile a list of clicked on layers
            // NOTO BENE: forEachLayerAtPixel() cannot be used because it causes CORS problems
            const activeLayers = this.olMapObject.getLayers();
-           const clickedLayerList: olLayer[] = [];
+           const clickedLayerList: Layer[] = [];
            const layerColl = map.getLayers();
            const me = this;
            layerColl.forEach(function(layer) {
@@ -91,7 +91,7 @@ export class OlMapService {
            }, me);
 
            // Compile a list of clicked on features
-           const clickedFeatureList: olFeature[] = [];
+           const clickedFeatureList: Feature[] = [];
            const featureHit = map.forEachFeatureAtPixel(pixel, function(feature) {
               // LJ: skip the olFeature
               if (feature.get('bClipboardVector')) {
@@ -118,9 +118,9 @@ export class OlMapService {
    * @param extent the extent with which to test the intersection of CSW
    * records
    */
-  public getCSWRecordsForExtent(extent: olExtent): CSWRecordModel[] {
+  public getCSWRecordsForExtent(extent: Extent): CSWRecordModel[] {
     let intersectedCSWRecordList: CSWRecordModel[] = [];
-    extent = olProj.transformExtent(extent, 'EPSG:3857', 'EPSG:4326');
+    extent = Proj.transformExtent(extent, 'EPSG:3857', 'EPSG:4326');
     const activeLayers = this.olMapObject.getLayers();
     const map = this.olMapObject.getMap();
     const mapLayerColl = map.getLayers();
@@ -139,7 +139,7 @@ export class OlMapService {
                        let cswRecordIntersects: boolean = false;
                        for (const bbox of cswRecord.geographicElements) {
                            const tBbox = [bbox.westBoundLongitude, bbox.southBoundLatitude, bbox.eastBoundLongitude, bbox.northBoundLatitude];
-                           if (olExtent.intersects(extent, tBbox)) {
+                           if (Extent.intersects(extent, tBbox)) {
                                cswRecordIntersects = true;
                            }
                        }
@@ -311,7 +311,7 @@ export class OlMapService {
    * DrawBound
    * @returns a observable object that triggers an event when the user have completed the task
    */
-  public drawBound(): Subject<olLayerVector> {
+  public drawBound(): Subject<VectorLayer> {
     return this.olMapObject.drawBox();
   }
 
@@ -319,7 +319,7 @@ export class OlMapService {
     * Method for drawing a dot on the map.
     * @returns the layer vector on which the dot is drawn on. This provides a handle for the dot to be deleted
     */
-  public drawDot(coord): olLayerVector {
+  public drawDot(coord): VectorLayer {
     return this.olMapObject.drawDot(coord);
   }
 
@@ -327,7 +327,7 @@ export class OlMapService {
   * Method for drawing a polygon on the map.
   * @returns the polygon coordinates string BS on which the polygon is drawn on.
   */
-  public drawPolygon(): BehaviorSubject<olLayerVector> {
+  public drawPolygon(): BehaviorSubject<VectorLayer> {
     return this.olMapObject.drawPolygon();
   }
 
@@ -335,7 +335,7 @@ export class OlMapService {
    * remove a vector layer from the map
    * @param the vector layer to be removed
    */
-  public removeVector(vector: olLayerVector) {
+  public removeVector(vector: VectorLayer) {
     this.olMapObject.removeVector(vector);
   }
 
@@ -343,7 +343,7 @@ export class OlMapService {
    * Return the extent of the overall map
    * @returns the map extent
    */
-  public getMapExtent(): olExtent {
+  public getMapExtent(): Extent {
     return this.olMapObject.getMapExtent();
   }
 
@@ -352,7 +352,7 @@ export class OlMapService {
    * @param extent the extent to display on the map
    * @param duration (Optional) the length of time in milliseconds to display the extent before it is removed. If not supplied the extent will not be removed.
    */
-  public displayExtent(extent: olExtent, duration?: number) {
+  public displayExtent(extent: Extent, duration?: number) {
     this.olMapObject.displayExtent(extent, duration);
   }
 

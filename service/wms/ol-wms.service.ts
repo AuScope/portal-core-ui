@@ -7,11 +7,11 @@ import { OnlineResourceModel } from '../../model/data/onlineresource.model';
 import { LayerHandlerService } from '../cswrecords/layer-handler.service';
 import { OlMapObject } from '../openlayermap/ol-map-object';
 import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
-import olMap from 'ol/Map';
-import olTile from 'ol/layer/Tile';
-import olTileWMS from 'ol/source/TileWMS';
-import * as olProj from 'ol/proj';
-import * as extent from 'ol/extent';
+import Map from 'ol/Map';
+import Tile from 'ol/layer/Tile';
+import TileWMS from 'ol/source/TileWMS';
+import * as Proj from 'ol/proj';
+import * as Extent from 'ol/extent';
 import { Constants } from '../../utility/constants.service';
 import { UtilitiesService } from '../../utility/utilities.service';
 import { RenderStatusService } from '../openlayermap/renderstatus/render-status.service';
@@ -20,7 +20,7 @@ import { RenderStatusService } from '../openlayermap/renderstatus/render-status.
  */
 @Injectable()
 export class OlWMSService {
-  private map: olMap;
+  private map: Map;
   constructor(
     private layerHandlerService: LayerHandlerService,
     private olMapObject: OlMapObject,
@@ -41,7 +41,9 @@ export class OlWMSService {
       encodeURIComponent(sldBody).length > Constants.WMSMAXURLGET ||
       this.conf.forceAddLayerViaProxy.includes(layer.id)
     );
-  }/**
+  }
+  
+  /**
    * get wms 1.3.0 related parameter
    * @param layers the wms layer
    * @param sld_body associated sld_body
@@ -307,7 +309,7 @@ export class OlWMSService {
           let defaultExtent;
           if (wmsOnlineResource.geographicElements.length > 0) {
             const cswExtent = wmsOnlineResource.geographicElements[0];
-            let lonlatextent = extent.buffer(
+            let lonlatextent = Extent.buffer(
               [
                 cswExtent.westBoundLongitude,
                 cswExtent.southBoundLatitude,
@@ -316,13 +318,13 @@ export class OlWMSService {
               ],
               2
             );
-            lonlatextent = extent.getIntersection(lonlatextent, [
+            lonlatextent = Extent.getIntersection(lonlatextent, [
               -180,
               -90,
               180,
               90
             ]);
-            defaultExtent = olProj.transformExtent(
+            defaultExtent = Proj.transformExtent(
               lonlatextent,
               'EPSG:4326',
               'EPSG:3857'
@@ -334,9 +336,9 @@ export class OlWMSService {
           }
 
           if (this.wmsUrlTooLong(response, layer)) {
-            wmsTile = new olTile({
+            wmsTile = new Tile({
               extent: defaultExtent,
-              source: new olTileWMS({
+              source: new TileWMS({
                 url: wmsOnlineResource.url,
                 params: params,
                 serverType: 'geoserver',
@@ -347,9 +349,9 @@ export class OlWMSService {
               })
             });
           } else {
-            wmsTile = new olTile({
+            wmsTile = new Tile({
               extent: defaultExtent,
-              source: new olTileWMS({
+              source: new TileWMS({
                 url: wmsOnlineResource.url,
                 params: params,
                 serverType: 'geoserver',

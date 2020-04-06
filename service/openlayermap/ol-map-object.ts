@@ -1,30 +1,30 @@
 import {RenderStatusService} from './renderstatus/render-status.service';
 import {Constants} from '../../utility/constants.service';
 import {Injectable , Inject} from '@angular/core';
-import olMap from 'ol/Map';
-import olTile from 'ol/layer/Tile';
-import olOSM from 'ol/source/OSM';
-import olView from 'ol/View';
-import olLayer from 'ol/layer/Layer';
-import olSourceVector from 'ol/source/Vector';
-import olFormatGML2 from 'ol/format/GML2';
-import olLayerVector from 'ol/layer/Vector';
+import Map from 'ol/Map';
+import Tile from 'ol/layer/Tile';
+import OSM from 'ol/source/OSM';
+import View from 'ol/View';
+import Layer from 'ol/layer/Layer';
+import VectorSource from 'ol/source/Vector';
+import FormatGML2 from 'ol/format/GML2';
+import VectorLayer from 'ol/layer/Vector';
 import XYZ from 'ol/source/XYZ';
 import TileLayer from 'ol/layer/Tile';
-import olGeomPolygon from 'ol/geom/Polygon';
+import Polygon from 'ol/geom/Polygon';
 import BingMaps from 'ol/source/BingMaps';
-import olDraw, { createBox } from 'ol/interaction/Draw';
-import olControl from 'ol/control';
-import olStyleStyle from 'ol/style/Style';
-import olStyleCircle from 'ol/style/Circle';
-import olStyleFill from 'ol/style/Fill';
-import olStyleStroke from 'ol/style/Stroke';
-import olGeomPoint from 'ol/geom/Point';
-import olFeature from 'ol/Feature';
-import * as olExtent from 'ol/extent';
-import * as olEasing from 'ol/easing';
+import Draw, { createBox } from 'ol/interaction/Draw';
+import Control from 'ol/control';
+import Style from 'ol/style/Style';
+import Circle from 'ol/style/Circle';
+import Fill from 'ol/style/Fill';
+import Stroke from 'ol/style/Stroke';
+import Point from 'ol/geom/Point';
+import Feature from 'ol/Feature';
+import * as Extent from 'ol/extent';
+import * as Easing from 'ol/easing';
 import {unByKey} from 'ol/Observable';
-import { Subject , BehaviorSubject} from 'rxjs';
+import { Subject , BehaviorSubject } from 'rxjs';
 import * as G from 'ol-geocoder';
 import {getVectorContext} from 'ol/render';
 
@@ -42,7 +42,7 @@ export interface BaseMapLayerOption {
 @Injectable()
 export class OlMapObject {
 
-  private map: olMap;
+  private map: Map;
   private activeLayer: {};
   private clickHandlerList: ((p: any) => void )[] = [];
   private ignoreMapClick = false;
@@ -55,9 +55,9 @@ export class OlMapObject {
     }
     for (let i = 0; i < this.baseMapLayers.length; ++i) {
       if ( this.baseMapLayers[i].layerType === 'OSM') {
-        this.baseLayers.push(new olTile({
+        this.baseLayers.push(new Tile({
           visible: true,
-          source: new olOSM()
+          source: new OSM()
         }));
       } else if ( this.baseMapLayers[i].layerType === 'Bing') {
         this.baseLayers.push(new TileLayer({
@@ -92,10 +92,10 @@ export class OlMapObject {
       }
     }
     this.activeLayer = {};
-    this.map = new olMap({
+    this.map = new Map({
       controls: [],
       layers: this.baseLayers,
-      view: new olView({
+      view: new View({
         center: Constants.CENTRE_COORD,
         zoom: 4
       })
@@ -149,7 +149,7 @@ public addGeocoderToMap() {
 
   }
 
-  public addControlToMap(control: olControl) {
+  public addControlToMap(control: Control) {
     this.map.addControl(control);
   }
 
@@ -164,7 +164,7 @@ public addGeocoderToMap() {
   /**
    * returns an instance of the ol map
    */
-  public getMap(): olMap {
+  public getMap(): Map {
     return this.map;
   }
 
@@ -187,7 +187,7 @@ public addGeocoderToMap() {
    * @param layer: the ol layer to add to map
    * @param id the layer id is used
    */
-  public addLayerById(layer: olLayer, id: string): void {
+  public addLayerById(layer: Layer, id: string): void {
     if (!this.activeLayer[id]) {
       this.activeLayer[id] = [];
     }
@@ -206,7 +206,7 @@ public addGeocoderToMap() {
    * @param id the layer id is used
    * @return the ol layer
    */
-  public getLayerById(id: string): [olLayer] {
+  public getLayerById(id: string): [Layer] {
     if (!this.activeLayer[id] || this.activeLayer[id].length === 0) {
       return null;
     }
@@ -217,7 +217,7 @@ public addGeocoderToMap() {
   /**
    * Get all active layers
    */
-  public getLayers(): { [id: string]: [olLayer]} {
+  public getLayers(): { [id: string]: [Layer]} {
     return this.activeLayer;
   }
 
@@ -244,7 +244,7 @@ public addGeocoderToMap() {
    */
   public setLayerVisibility(layerId: string, visible: boolean) {
     if (this.getLayerById(layerId) != null) {
-        const layers: [olLayer] = this.getLayerById(layerId);
+        const layers: [Layer] = this.getLayerById(layerId);
         for (const layer of layers) {
             layer.setVisible(visible);
         }
@@ -259,7 +259,7 @@ public addGeocoderToMap() {
    */
   public setLayerOpacity(layerId: string, opacity: number) {
     if (this.getLayerById(layerId) != null) {
-      const layers: [olLayer] = this.getLayerById(layerId);
+      const layers: [Layer] = this.getLayerById(layerId);
       for (const layer of layers) {
         layer.setOpacity(opacity);
       }
@@ -284,17 +284,17 @@ public addGeocoderToMap() {
   * Method for drawing a polygon shape on the map. e.g selecting a polygon bounding box on the map
   * @returns a observable object that triggers an event when the user complete the drawing
   */
-  public drawPolygon(): BehaviorSubject<olLayerVector> {
+  public drawPolygon(): BehaviorSubject<VectorLayer> {
     this.ignoreMapClick = true;
-    const source = new olSourceVector({ wrapX: false });
+    const source = new VectorSource({ wrapX: false });
 
-    const vector = new olLayerVector({
+    const vector = new VectorLayer({
       source: source
     });
-    const vectorBS = new BehaviorSubject<olLayerVector>(vector);
+    const vectorBS = new BehaviorSubject<VectorLayer>(vector);
 
     this.map.addLayer(vector);
-    const draw = new olDraw({
+    const draw = new Draw({
       source: source,
       type: /** @type {ol.geom.GeometryType} */ ('Polygon')
     });
@@ -315,13 +315,13 @@ public addGeocoderToMap() {
     return vectorBS;
   }
 
-  public renderPolygon(polygon: any): BehaviorSubject<olLayerVector> {
+  public renderPolygon(polygon: any): BehaviorSubject<VectorLayer> {
     if (polygon.srs !== 'EPSG:3857') {
       return null;
     }
     let feature = null;
     if (polygon.geometryType === Constants.geometryType.MULTIPOLYGON) {
-      const gmlFormat = new olFormatGML2();
+      const gmlFormat = new FormatGML2();
       const gml2 = polygon.raw;
       feature = gmlFormat.readFeatures(gml2, {featureProjection: 'EPSG:3857'})[0];
     } else {
@@ -330,30 +330,30 @@ public addGeocoderToMap() {
       for (const c of coordsArray) {
         coords.push(c.split(','));
       }
-      const geom = new olGeomPolygon([coords]);
-      feature = new olFeature({geometry: geom});
+      const geom = new Polygon([coords]);
+      feature = new Feature({geometry: geom});
     }
 
     feature.set('bClipboardVector', true, true);
-    const style = new olStyleStyle({
-      fill: new olStyleFill({
+    const style = new Style({
+      fill: new Fill({
         color: 'rgba(255, 255, 255, 0.6)'
       }),
-      stroke: new olStyleStroke({
+      stroke: new Stroke({
         color: '#319FD3',
         width: 1
       })
     });
-    const vector = new olLayerVector({
-        source: new olSourceVector({
-          format: new olFormatGML2({
+    const vector = new VectorLayer({
+        source: new VectorSource({
+          format: new FormatGML2({
             srsName: 'EPSG::3857'
           }),
           features: [feature]
         }),
         style: style
     });
-    const vectorBS = new BehaviorSubject<olLayerVector>(vector);
+    const vectorBS = new BehaviorSubject<VectorLayer>(vector);
     this.map.addLayer(vector);
     return vectorBS;
   }
@@ -362,19 +362,19 @@ public addGeocoderToMap() {
  * Method for drawing a box on the map. e.g selecting a bounding box on the map
  * @returns a observable object that triggers an event when the user complete the drawing
  */
-  public drawBox(): Subject<olLayerVector> {
+  public drawBox(): Subject<VectorLayer> {
     this.ignoreMapClick = true;
-    const source = new olSourceVector({wrapX: false});
+    const source = new VectorSource({wrapX: false});
 
-    const vector = new olLayerVector({
+    const vector = new VectorLayer({
       source: source
     });
 
-    const vectorBS = new Subject<olLayerVector>();
+    const vectorBS = new Subject<VectorLayer>();
 
 
     this.map.addLayer(vector);
-    const draw = new olDraw({
+    const draw = new Draw({
       source: source,
       type: /** @type {ol.geom.GeometryType} */ ('Circle'),
       geometryFunction: createBox()
@@ -396,21 +396,21 @@ public addGeocoderToMap() {
     * Method for drawing a dot on the map.
     * @returns the layer vector on which the dot is drawn on. This provides a handle for the dot to be deleted
     */
-  public drawDot(coord): olLayerVector {
-    const source = new olSourceVector({wrapX: false});
-    const vector = new olLayerVector({
+  public drawDot(coord): VectorLayer {
+    const source = new VectorSource({wrapX: false});
+    const vector = new VectorLayer({
       source: source,
-      style: new olStyleStyle({
-        fill: new olStyleFill({
+      style: new Style({
+        fill: new Fill({
           color: 'rgba(255, 255, 255, 0.2)'
         }),
-        stroke: new olStyleStroke({
+        stroke: new Stroke({
           color: '#ffcc33',
           width: 2
         }),
-        image: new olStyleCircle({
+        image: new Circle({
           radius: 7,
-          fill: new olStyleFill({
+          fill: new Fill({
             color: '#ffcc33'
           })
         })
@@ -419,8 +419,8 @@ public addGeocoderToMap() {
 
     this.map.addLayer(vector);
     const me = this;
-    const geom = new olGeomPoint(coord);
-    const feature = new olFeature(geom);
+    const geom = new Point(coord);
+    const feature = new Feature(geom);
      function flash(feature) {
         const start = new Date().getTime();
         let listenerKey;
@@ -432,14 +432,14 @@ public addGeocoderToMap() {
           const elapsed = frameState.time - start;
           const elapsedRatio = elapsed / 3000;
           // radius will be 5 at start and 30 at end.
-          const radius = olEasing.easeOut(elapsedRatio) * 25 + 5;
-          const opacity = olEasing.easeOut(1 - elapsedRatio);
+          const radius = Easing.easeOut(elapsedRatio) * 25 + 5;
+          const opacity = Easing.easeOut(1 - elapsedRatio);
 
-          const style = new olStyleStyle({
-            image: new olStyleCircle({
+          const style = new Style({
+            image: new Circle({
               radius: radius,
               snapToPixel: false,
-              stroke: new olStyleStroke({
+              stroke: new Stroke({
                 color: 'rgba(255, 0, 0, ' + opacity + ')',
                 width: 0.25 + opacity
               })
@@ -470,7 +470,7 @@ public addGeocoderToMap() {
    * Return the extent of the entire map
    * @returns an olExtent object representing the bounds of the map
    */
-  public getMapExtent(): olExtent {
+  public getMapExtent(): Extent {
     return this.map.getView().calculateExtent(this.map.getSize());
   }
 
@@ -479,13 +479,13 @@ public addGeocoderToMap() {
    * @param extent the olExtent to display on the map
    * @param duration (Optional) the length of time in milliseconds to display the extent before it is removed. If not supplied the extent will not be removed.
    */
-  public displayExtent(extent: olExtent, duration?: number): void {
-    const poly: olGeomPolygon = olGeomPolygon.fromExtent(extent);
-    const feature: olFeature = new olFeature(poly);
-    const source = new olSourceVector({wrapX: false});
+  public displayExtent(extent: Extent, duration?: number): void {
+    const poly: Polygon = Polygon.fromExtent(extent);
+    const feature: Feature = new Feature(poly);
+    const source = new VectorSource({wrapX: false});
     source.addFeature(feature);
     // TODO: Styling
-    const vector = new olLayerVector({
+    const vector = new VectorLayer({
       source: source
     });
     this.map.addLayer(vector);
@@ -499,7 +499,7 @@ public addGeocoderToMap() {
   /**
    * Remove a vector from the map
    */
-  public removeVector(vector: olLayerVector) {
+  public removeVector(vector: VectorLayer) {
     this.map.removeLayer(vector);
   }
 
