@@ -1,4 +1,4 @@
-import {Injectable, Inject} from '@angular/core';
+import {Injectable} from '@angular/core';
 import {BehaviorSubject} from 'rxjs';
 import * as Proj from 'ol/proj';
 import { OlMapObject } from './ol-map-object';

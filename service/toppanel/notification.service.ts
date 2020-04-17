@@ -21,11 +21,8 @@ export class NotificationService {
     return this.http.get(this.env.portalBaseUrl + 'getNotifications.do').pipe(
       map(
         (response: HttpResponse<any>) => {
-          return response;
-          /*
-          const data = response.json();
+          const data = JSON.parse(response.body);
           return data;
-          */
         }
       ),
       catchError(
