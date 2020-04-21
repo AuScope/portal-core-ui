@@ -12,6 +12,7 @@ import olLayerVector from 'ol/layer/Vector';
 import XYZ from 'ol/source/XYZ';
 import TileLayer from 'ol/layer/Tile';
 import olGeomPolygon from 'ol/geom/Polygon';
+import { fromExtent } from 'ol/geom/Polygon';
 import BingMaps from 'ol/source/BingMaps';
 import olDraw, { createBox } from 'ol/interaction/Draw';
 import olControl from 'ol/control';
@@ -480,7 +481,7 @@ public addGeocoderToMap() {
    * @param duration (Optional) the length of time in milliseconds to display the extent before it is removed. If not supplied the extent will not be removed.
    */
   public displayExtent(extent: olExtent, duration?: number): void {
-    const poly: olGeomPolygon = olGeomPolygon.fromExtent(extent);
+    const poly: olGeomPolygon = fromExtent(extent);
     const feature: olFeature = new olFeature(poly);
     const source = new olSourceVector({wrapX: false});
     source.addFeature(feature);
