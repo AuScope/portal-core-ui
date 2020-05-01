@@ -23,9 +23,13 @@ export class DownloadWcsService {
   }
 
   /**
-   * down the layer
-   * @param the layer to download
+   * Download the layer as a zip file
+   * @param layer the layer to download
    * @param bbox the bounding box of the area to download
+   * @param inputCrs coordinate reference system of bounding box
+   * @param downloadformat requests a download in a certain format
+   * @param outputCrs coord reference system for the download
+   * @return observable containing the download or error
    */
   public download(layer: LayerModel, bbox: Bbox, inputCrs: string, downloadFormat: string, outputCrs: string): Observable<any> {
     try {
@@ -66,10 +70,16 @@ export class DownloadWcsService {
 
   }
 
-   public describeCoverage(serviceUrl: string, layerName: string) {
+  /**
+   *  Describe coverage
+   *  @param serviceUrl URL of the WCS
+   *  @param coverageName name of coverage
+   *  @return observable containing the describe coverage response or error
+   */
+   public describeCoverage(serviceUrl: string, coverageName: string): Observable<any> {
     let httpParams = new HttpParams();
     httpParams = httpParams.append('serviceUrl', serviceUrl);
-    httpParams = httpParams.append('layerName', layerName);
+    httpParams = httpParams.append('coverageName', coverageName);
 
     return this.http.post(this.env.portalBaseUrl + 'describeCoverage.do', httpParams.toString(), {
       headers: new HttpHeaders().set('Content-Type', 'application/x-www-form-urlencoded'),
