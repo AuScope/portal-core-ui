@@ -3,7 +3,7 @@ import {BehaviorSubject} from 'rxjs';
 import * as olProj from 'ol/proj';
 import { OlMapObject } from './ol-map-object';
 import olLayerVector from 'ol/layer/Vector';
-import { Constants } from '../../../portal-core-ui/utility/constants.service';
+import { Constants } from '../../utility/constants.service';
 
 /**
  * A wrapper around the clipboard object for use in the portal.
