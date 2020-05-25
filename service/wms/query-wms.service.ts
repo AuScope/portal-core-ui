@@ -65,6 +65,10 @@ export class QueryWMSService {
     if (onlineResource.description.indexOf('EMAG2 - Total Magnetic Intensity') >= 0) {
       formdata = formdata.set('INFO_FORMAT', 'text/xml');
     }
+    
+    if (onlineResource.description.indexOf('Onshore Seismic Surveys') >= 0) {
+      formdata = formdata.set('INFO_FORMAT', 'text/xml');
+    }  
 
     return this.http.post(this.env.portalBaseUrl + 'wmsMarkerPopup.do', formdata.toString(), {
       headers: new HttpHeaders()
