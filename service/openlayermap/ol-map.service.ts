@@ -76,14 +76,11 @@ export class OlMapService {
                            if (!me.layerHandlerService.containsWMS(layerModel)) {
                              continue;
                            }
-                           for (const cswRecord of layerModel.cswRecords) {
-                               for (const bbox of cswRecord.geographicElements) {
-                                   const poly = bboxPolygon([bbox.eastBoundLongitude, bbox.southBoundLatitude, bbox.westBoundLongitude, bbox.northBoundLatitude]);
-                                   if (inside(clickPoint, poly) && !clickedLayerList.includes(activeLayer)) {
-                                     // Add to list of clicked layers
-                                     clickedLayerList.push(activeLayer);
-                                   }
-                               }
+                           const bbox = activeLayer.onlineResource.geographicElements[0];
+                           const poly = bboxPolygon([bbox.eastBoundLongitude, bbox.southBoundLatitude, bbox.westBoundLongitude, bbox.northBoundLatitude]);
+                           if (inside(clickPoint, poly) && !clickedLayerList.includes(activeLayer)) {
+                             // Add to list of clicked layers
+                             clickedLayerList.push(activeLayer);
                            }
                        }
                    }
