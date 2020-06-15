@@ -1,16 +1,8 @@
 # portal-core-ui
-The  UI component for portal-core written in Angular 9
+Shared UI components written in Angular 9
 
-View https://github.com/AuScope/AuScope-Portal/tree/master/src/main/webapp/angular4/project for dependency configuration info.
+Can be included as an npm package under 'dependencies' in package.json file:
 
-Include the following dependency
+*"portal-core-ui": "github:AuScope/portal-core-ui#master"*
 
-        "@turf/center": "^4.6.1",
-        "@turf/envelope": "^4.6.0",
-        "@turf/helpers": "^4.5.2",
-        "@turf/inside": "^4.6.0",
-        "@types/geojson": "^1.0.2",
-        "@types/jquery": "^3.2.9",
-        "ol": "^4.3.1",
-        "ng-selectize": "^1.1.0",
-        "jquery": "^3.2.1"
+See https://github.com/AuScope/AuScope-Portal-UI/blob/master/project/package.json in 'Auscope-Portal-UI' repository for an example.
