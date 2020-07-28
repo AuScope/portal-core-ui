@@ -35,7 +35,16 @@ export class UtilitiesService {
         }
     }
 
-  public static leftPad(str, size, character) {
+
+    /**
+     * Add characters (default space) to left hand side of a string
+     * @method leftPad
+     * @param str string
+     * @param size desired final length of string
+     * @param character character to pad out with
+     * @return padded string
+     */
+    public static leftPad(str, size, character) {
         let result = String(str);
         character = character || ' ';
         while (result.length < size) {
@@ -43,6 +52,7 @@ export class UtilitiesService {
         }
         return result;
     }
+
 
     /**
      * Retrieve the key of a object
@@ -79,7 +89,7 @@ export class UtilitiesService {
             return s.indexOf(c) !== -1;
     }
 
-       /**
+    /**
      * Returns the parameter in a get url request
      * @method getUrlParameters
      * @param url - the get url string to break
@@ -439,13 +449,13 @@ export class UtilitiesService {
       return httpParam;
     }
 
-   public static getBaseUrl(url): string {
+    public static getBaseUrl(url): string {
         const splitUrl = url.split('://');
         return splitUrl[0] + '://' + splitUrl[1].slice(0, splitUrl[1].indexOf('/'));
     }
 
 
-  /**
+    /**
      * check if the cswRecord has a entry in the list of failing nagios record
      * @param stackdriverFailingHosts array of the list of host that is experiencing problem
      * @param cswRecord the csw we are matching for problem
@@ -461,12 +471,12 @@ export class UtilitiesService {
       return false;
     }
 
-  /**
-   * Returns true iff (if and only if) this is an ESRI ArcGIS server
-   * @param onlineResource online resource record for service
-   */
-  public static isArcGIS(onlineResource: OnlineResourceModel) {
-    return (onlineResource.applicationProfile && onlineResource.applicationProfile.indexOf('Esri:ArcGIS Server') > -1);
-  }
+    /**
+     * Returns true iff (if and only if) this is an ESRI ArcGIS server
+     * @param onlineResource online resource record for service
+     */
+    public static isArcGIS(onlineResource: OnlineResourceModel) {
+        return (onlineResource.applicationProfile && onlineResource.applicationProfile.indexOf('Esri:ArcGIS Server') > -1);
+    }
 
 }
