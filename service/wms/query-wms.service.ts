@@ -6,6 +6,7 @@ import {Injectable, Inject} from '@angular/core';
 import {HttpClient, HttpParams, HttpHeaders, HttpResponse} from '@angular/common/http';
 import {OnlineResourceModel} from '../../model/data/onlineresource.model';
 import { OlMapObject } from '../openlayermap/ol-map-object';
+import { UtilitiesService } from '../../utility/utilities.service';
 
 
 @Injectable()
@@ -52,7 +53,7 @@ export class QueryWMSService {
       formdata = formdata.append('INFO_FORMAT', 'application/vnd.ogc.gml/3.1.1');
     }
 
-    if (onlineResource.applicationProfile && onlineResource.applicationProfile.indexOf('Esri:ArcGIS Server') > -1) {
+    if (UtilitiesService.isArcGIS(onlineResource)) {
       formdata = formdata.set('INFO_FORMAT', 'text/xml');
       formdata = formdata.set('SLD_BODY', '');
       formdata = formdata.set('postMethod', 'false');
