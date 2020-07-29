@@ -15,8 +15,11 @@ import * as extent from 'ol/extent';
 import { Constants } from '../../utility/constants.service';
 import { UtilitiesService } from '../../utility/utilities.service';
 import { RenderStatusService } from '../openlayermap/renderstatus/render-status.service';
+import { MinTenemStyleService } from '../../../../src/app/services/style/wms/min-tenem-style.service';
+
+
 /**
- * Use OlMapService to add layer to map. This service class adds wms layer to the map
+ * Use OlMapService to add layer to map. This service class adds WMS layer to the map
  */
 @Injectable()
 export class OlWMSService {
@@ -33,16 +36,20 @@ export class OlWMSService {
     this.map = this.olMapObject.getMap();
   }
 
+
   /**
-   * a private helper that to check of the url is too long
+   * A private helper used to check if the URL is too long
    */
   private wmsUrlTooLong(sldBody: string, layer: LayerModel): boolean {
     return (
       encodeURIComponent(sldBody).length > Constants.WMSMAXURLGET ||
       this.conf.forceAddLayerViaProxy.includes(layer.id)
     );
-  }/**
-   * get wms 1.3.0 related parameter
+  }
+
+
+  /**
+   * Get WMS 1.3.0 related parameter
    * @param layers the wms layer
    * @param sld_body associated sld_body
    */
@@ -62,11 +69,13 @@ export class OlWMSService {
       TRANSPARENT: true,
       VERSION: '1.3.0',
       WIDTH: Constants.TILE_SIZE,
-      HEIGHT: Constants.TILE_SIZE
+      HEIGHT: Constants.TILE_SIZE,
+      STYLES: param && param.styles ? param.styles : '',
     };
 
     if (sld_body) {
-      if (this.wmsUrlTooLong(sld_body, layer)) {
+      /* ArcGIS cannot read base64 encoded styles */
+      if (!UtilitiesService.isArcGIS(onlineResource) && this.wmsUrlTooLong(sld_body, layer)) {
         params['sld_body'] = window.btoa(sld_body);
       } else {
         params['sld_body'] = sld_body;
@@ -77,15 +86,18 @@ export class OlWMSService {
     return params;
   }
 
+
   /**
    * get wms 1.1.0 related parameter
-   * @param layers the wms layer
-   * @param sld_body associated sld_body
+   * @param layer the WMS layer
+   * @param onlineResource details of the online resource
+   * @param param WMS parameters
+   * @param sld_body associated SLD_BODY
    */
   public getWMS1_1param(
     layer: LayerModel,
     onlineResource: OnlineResourceModel,
-    param,
+    param: any,
     sld_body?: string
   ): any {
     const params = {
@@ -101,7 +113,8 @@ export class OlWMSService {
       HEIGHT: Constants.TILE_SIZE
     };
     if (sld_body) {
-      if (this.wmsUrlTooLong(sld_body, layer)) {
+      /* ArcGIS cannot read base64 encoded styles */
+      if (!UtilitiesService.isArcGIS(onlineResource) && this.wmsUrlTooLong(sld_body, layer)) {
         params['sld_body'] = window.btoa(sld_body);
       } else {
         params['sld_body'] = sld_body;
@@ -112,16 +125,31 @@ export class OlWMSService {
     return params;
   }
 
+
   /**
-   * get the sld from the url
-   * @param sldUrl the url containing the sld
-   * @return a observable of the http request
+   * Get the SLD from the URL
+   * @param sldUrl the url containing the SLD
+   * @param usePost use a HTTP POST request
+   * @param onlineResource details of resource
+   * @return an Observable of the HTTP request
    */
-  public getSldBody(
+  private getSldBody(
     sldUrl: string,
     usePost: Boolean,
+    onlineResource: OnlineResourceModel,
     param?: any
   ): Observable<any> {
+
+    // For ArcGIS mineral tenements layer we can get SLD_BODY parameter locally
+    if (UtilitiesService.isArcGIS(onlineResource) && onlineResource.name === 'MineralTenement') {
+      return Observable.create(observer => {
+        param.styles = 'mineralTenementStyle';
+        const x = MinTenemStyleService.getMineralTenementsSld(onlineResource.name, param.styles, param.ccProperty);
+        observer.next(x);
+        observer.complete();
+      });
+    }
+
     if (!sldUrl) {
       return Observable.create(observer => {
         observer.next(null);
@@ -164,8 +192,10 @@ export class OlWMSService {
         );
     }
   }
+
+
   /**
-   * get the NvclFilter from the url
+   * Get the NvclFilter from the URL
    * @param sldUrl the url containing the sld
    * @return a observable of the http request
    */
@@ -219,18 +249,20 @@ export class OlWMSService {
         );
     }
   }
+
+
   /**
-   * Get the wms style url if proxyStyleUrl is valid
-   * @method getWMSStyleUrl
-   * @param layer - the layer we would like to retrieve the sld for if proxyStyleUrl is defined
+   * Get the WMS style URL if proxyStyleUrl is valid
+   * @method getSldUrl
+   * @param layer - the layer we would like to retrieve the SLD for if proxyStyleUrl is defined
    * @param onlineResource - the onlineResource of the layer we are rendering
    * @param param - OPTIONAL - parameter to be passed into retrieving the SLD.Used in capdf
    * @return url - getUrl to retrieve sld
    */
-  public getSldUrl(
+  private getSldUrl(
     layer: LayerModel,
     onlineResource: OnlineResourceModel,
-    param
+    param?: any
   ) {
     if (layer.proxyStyleUrl) {
       let httpParams = Object.getOwnPropertyNames(param).reduce(
@@ -244,6 +276,7 @@ export class OlWMSService {
       return null;
     }
   }
+
 
   /**
    * Add a wms layer to the map
@@ -285,7 +318,7 @@ export class OlWMSService {
         this.env.portalBaseUrl + layer.proxyStyleUrl + collatedParam.toString(),
         layer
       );
-      this.getSldBody(layer.proxyStyleUrl, usePost, collatedParam).subscribe(
+      this.getSldBody(layer.proxyStyleUrl, usePost, wmsOnlineResource, collatedParam).subscribe(
         response => {
           const me = this;
           const params = wmsOnlineResource.version.startsWith('1.3')
@@ -333,7 +366,8 @@ export class OlWMSService {
               .calculateExtent(this.map.getSize());
           }
 
-          if (this.wmsUrlTooLong(response, layer)) {
+          // ArcGIS does not respond to POST requests
+          if (!UtilitiesService.isArcGIS(wmsOnlineResource) && this.wmsUrlTooLong(response, layer)) {
             wmsTile = new olTile({
               extent: defaultExtent,
               source: new olTileWMS({
@@ -385,8 +419,10 @@ export class OlWMSService {
       );
     }
   }
+
+
   /**
-   * a injected function into openlayers to proxy the url IF the url is too long
+   * An injected function into Openlayers to proxy the URL *IF* the URL is too long
    */
   public imagePostFunction(image, src) {
     const img = image.getImage();
