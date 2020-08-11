@@ -479,4 +479,12 @@ export class UtilitiesService {
         return (onlineResource.applicationProfile && onlineResource.applicationProfile.indexOf('Esri:ArcGIS Server') > -1);
     }
 
+    /**
+     * Returns true iff (if and only if) this is a GSKY server
+     * @param onlineResource online resource record for service
+     */
+    public static isGSKY(onlineResource: OnlineResourceModel) {
+        return (onlineResource.applicationProfile && onlineResource.applicationProfile.indexOf('GSKY') > -1);
+    }
+
 }

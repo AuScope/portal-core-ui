@@ -305,7 +305,6 @@ export class SimpleXMLService {
     const docs: any[] = [];
     if (rootNode) {
       let features = null;
-      const asterFeatureInfoResponseNode = SimpleXMLService.getMatchingChildNodes(rootNode, null, 'FeatureInfoResponse');
       const wfsFeatureCollection = SimpleXMLService.getMatchingChildNodes(rootNode, null, 'FeatureCollection');
       if (UtilitiesService.isEmpty(wfsFeatureCollection)) {
         // Check for error reports - some WMS servers mark their error reports with <ServiceExceptionReport>, some with <html>
@@ -318,7 +317,8 @@ export class SimpleXMLService {
             key: 'Server Error - ' + feature.onlineResource.url,
             layer: feature.layer,
             onlineResource: feature.onlineResource,
-            value: (document.createTextNode('Sorry - server has returned an error message. See browser console for more information'))
+            value: (document.createTextNode('Sorry - server has returned an error message. See browser console for more information')),
+            format: 'XML'
           });
           return docs;
         }
@@ -352,7 +352,8 @@ export class SimpleXMLService {
                 key: name,
                 layer: feature.layer,
                 onlineResource: feature.onlineResource,
-                value: features[i]
+                value: features[i],
+                format: 'XML'
               });
               const displayStr = ' ';
 
@@ -393,7 +394,8 @@ export class SimpleXMLService {
             key: name,
             layer: feature.layer,
             onlineResource: feature.onlineResource,
-            value: featureNode
+            value: featureNode,
+            format: 'XML'
           });
         }
       }
