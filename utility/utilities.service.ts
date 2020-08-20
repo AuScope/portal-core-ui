@@ -179,6 +179,8 @@ export class UtilitiesService {
 
     /**
      * Extract the domain from any url
+     * e.g. 'https://abc.bca.org/api?id=whoami&name=blah' -> 'abc.bca.org'
+     *
      * @method getUrlDomain
      * @param url to extract the domain
      */
@@ -187,6 +189,33 @@ export class UtilitiesService {
         a.href = url;
         return a.hostname;
     }
+
+
+    /**
+     * Remove parameters from URL
+     * e.g. 'https://abc.bca.org/api?id=whoami&name=blah' -> 'https://abc.bca.org/api'
+     *
+     * @method rmParamURL
+     * @param URL URL string
+     * @returns truncated URL string
+     */
+    public static rmParamURL(url: string): string {
+        const u = new URL(url)
+        return u.origin + u.pathname;
+    }
+
+
+    /**
+     * Get base from URL
+     * e.g. "https://abc.bca.org/blagg?id=56&ty=78" -> "https://abc.bca.org"
+     *
+     * @param url 
+     */
+    public static getBaseUrl(url): string {
+        const splitUrl = url.split('://');
+        return splitUrl[0] + '://' + splitUrl[1].slice(0, splitUrl[1].indexOf('/'));
+    }
+
 
     /**
      * Based on the filter parameter, this is a utility to decide if we should skip this provider
@@ -373,6 +402,12 @@ export class UtilitiesService {
         return string;
     }
 
+    /**
+     * @method getUrlParameterByName
+     * @param name name of parameter
+     * @param url optional URL to get parameter from, if not supplied uses the current page's URL
+     * @return parameter value
+     */
     public static getUrlParameterByName(name: string, url?: string): string {
       if (!url) {
         url = window.location.href;
@@ -447,11 +482,6 @@ export class UtilitiesService {
         }
       }
       return httpParam;
-    }
-
-    public static getBaseUrl(url): string {
-        const splitUrl = url.split('://');
-        return splitUrl[0] + '://' + splitUrl[1].slice(0, splitUrl[1].indexOf('/'));
     }
 
 
