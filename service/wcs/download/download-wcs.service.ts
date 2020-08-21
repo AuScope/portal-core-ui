@@ -52,16 +52,27 @@ export class DownloadWcsService {
 
       httpParams = httpParams.set('outputDimensionsType', 'widthHeight');
       
+      // User can select any rectangular shape on screen.
+      // We must make sure that the downloaded image has the same shape.
+      // Calculate aspect ratio = height / width
       // NB: Assumes bbox does not cross longitude boundary
       const aspectRatio = Math.abs(bbox.southBoundLatitude - bbox.northBoundLatitude)/Math.abs(bbox.eastBoundLongitude - bbox.westBoundLongitude);
       
-      // User can select any rectangular shape, but downloaded image always has longest side of 'MAX_SIDE' pixels
+      // Downloaded image always has longest side of 'MAX_SIDE' pixels
       const MAX_SIDE = 4096;
+
+      // If width < height
       if (aspectRatio < 1.0) {
+        // Set width of image to be 'MAX_SIDE'
         httpParams = httpParams.set('outputWidth', MAX_SIDE.toString());
+        // Set height of image to be less than 'MAX_SIDE'
         httpParams = httpParams.set('outputHeight', Math.floor(MAX_SIDE*aspectRatio).toString());
+
+      // If width >= height
       } else {
-        httpParams = httpParams.set('outputWidth', Math.floor(MAX_SIDE*aspectRatio).toString());
+        // Set width of image to be less than 'MAX_SIDE'
+        httpParams = httpParams.set('outputWidth', Math.floor(MAX_SIDE/aspectRatio).toString());
+        // Set height of image to be 'MAX_SIDE'
         httpParams = httpParams.set('outputHeight', MAX_SIDE.toString());
       }
       httpParams = httpParams.set('inputCrs', inputCrs);
