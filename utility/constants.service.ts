@@ -58,9 +58,12 @@ export class Constants {
 
     public static WMSMAXURLGET = 1850;
 
+    // Map coordinates are in this projection system
+    public static MAP_PROJ = 'EPSG:3857';
 
     // Centre of Australia in EPSG:3857
     public static CENTRE_COORD: [number, number] = [14793316.706200, -2974317.644633];
+
     public static paddlesList = [['http://maps.google.com/mapfiles/kml/paddle/blu-blank.png', 'blue'],
     ['http://maps.google.com/mapfiles/kml/paddle/blu-square.png', 'blue'],
     ['http://maps.google.com/mapfiles/kml/paddle/blu-circle.png', 'blue'],

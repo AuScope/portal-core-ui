@@ -1,13 +1,17 @@
 
 import {throwError as observableThrowError,  Observable } from 'rxjs';
-
+import {Injectable, Inject} from '@angular/core';
 import {timeoutWith, map, catchError} from 'rxjs/operators';
+import {HttpClient, HttpParams, HttpHeaders, HttpResponse} from '@angular/common/http';
+
 import { Bbox } from '../../../model/data/bbox.model';
 import { LayerModel } from '../../../model/data/layer.model';
 import { Constants } from '../../../utility/constants.service';
 import { LayerHandlerService } from '../../cswrecords/layer-handler.service';
-import {HttpClient, HttpParams, HttpHeaders, HttpResponse} from '@angular/common/http';
-import {Injectable, Inject} from '@angular/core';
+
+
+
+import { UtilitiesService } from '../../../utility/utilities.service';
 
 
 /**
@@ -39,7 +43,7 @@ export class DownloadWcsService {
 
       let httpParams = new HttpParams();
       httpParams = httpParams.set('layerName', wcsResources[0].name);
-      httpParams = httpParams.set('serviceUrl', wcsResources[0].url);
+      httpParams = httpParams.set('serviceUrl', UtilitiesService.rmParamURL(wcsResources[0].url));
       httpParams = httpParams.set('usingBboxConstraint', 'on');
       httpParams = httpParams.set('northBoundLatitude', bbox.northBoundLatitude.toString());
       httpParams = httpParams.set('southBoundLatitude', bbox.southBoundLatitude.toString());
@@ -47,9 +51,30 @@ export class DownloadWcsService {
       httpParams = httpParams.set('westBoundLongitude', bbox.westBoundLongitude.toString());
 
       httpParams = httpParams.set('outputDimensionsType', 'widthHeight');
-      httpParams = httpParams.set('outputWidth', '256');
-      httpParams = httpParams.set('outputHeight', '256');
+      
+      // User can select any rectangular shape on screen.
+      // We must make sure that the downloaded image has the same shape.
+      // Calculate aspect ratio = height / width
+      // NB: Assumes bbox does not cross longitude boundary
+      const aspectRatio = Math.abs(bbox.southBoundLatitude - bbox.northBoundLatitude)/Math.abs(bbox.eastBoundLongitude - bbox.westBoundLongitude);
+      
+      // Downloaded image always has longest side of 'MAX_SIDE' pixels
+      const MAX_SIDE = 4096;
 
+      // If width < height
+      if (aspectRatio < 1.0) {
+        // Set width of image to be 'MAX_SIDE'
+        httpParams = httpParams.set('outputWidth', MAX_SIDE.toString());
+        // Set height of image to be less than 'MAX_SIDE'
+        httpParams = httpParams.set('outputHeight', Math.floor(MAX_SIDE*aspectRatio).toString());
+
+      // If width >= height
+      } else {
+        // Set width of image to be less than 'MAX_SIDE'
+        httpParams = httpParams.set('outputWidth', Math.floor(MAX_SIDE/aspectRatio).toString());
+        // Set height of image to be 'MAX_SIDE'
+        httpParams = httpParams.set('outputHeight', MAX_SIDE.toString());
+      }
       httpParams = httpParams.set('inputCrs', inputCrs);
       httpParams = httpParams.set('downloadFormat', downloadFormat);
       httpParams = httpParams.set('outputCrs', outputCrs);

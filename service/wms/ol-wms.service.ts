@@ -280,6 +280,7 @@ export class OlWMSService {
 
   /**
    * Add a wms layer to the map
+   * @method addLayer
    * @param layer the wms layer to add to the map.
    */
   public addLayer(layer: LayerModel, param?: any): void {
@@ -358,7 +359,7 @@ export class OlWMSService {
             defaultExtent = olProj.transformExtent(
               lonlatextent,
               'EPSG:4326',
-              'EPSG:3857'
+              Constants.MAP_PROJ
             );
           } else {
             defaultExtent = this.map
@@ -371,10 +372,10 @@ export class OlWMSService {
             wmsTile = new olTile({
               extent: defaultExtent,
               source: new olTileWMS({
-                url: wmsOnlineResource.url,
+                url: UtilitiesService.rmParamURL(wmsOnlineResource.url),
                 params: params,
                 serverType: 'geoserver',
-                projection: 'EPSG:3857', // VT: testing if this breaks anything. If not this will fix tas weird projection issue
+                projection: Constants.MAP_PROJ, // VT: testing if this breaks anything. If not this will fix tas weird projection issue
                 tileLoadFunction: function(image, src) {
                   me.imagePostFunction(image, src);
                 }
@@ -384,10 +385,10 @@ export class OlWMSService {
             wmsTile = new olTile({
               extent: defaultExtent,
               source: new olTileWMS({
-                url: wmsOnlineResource.url,
+                url: UtilitiesService.rmParamURL(wmsOnlineResource.url),
                 params: params,
                 serverType: 'geoserver',
-                projection: 'EPSG:3857', // VT: testing if this breaks anything. If not this will fix tas weird projection issue
+                projection: Constants.MAP_PROJ, // VT: testing if this breaks anything. If not this will fix tas weird projection issue
                 maxGetUrlLength: 2048
               })
             });
