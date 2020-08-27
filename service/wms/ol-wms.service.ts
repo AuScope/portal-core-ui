@@ -15,7 +15,7 @@ import * as extent from 'ol/extent';
 import { Constants } from '../../utility/constants.service';
 import { UtilitiesService } from '../../utility/utilities.service';
 import { RenderStatusService } from '../openlayermap/renderstatus/render-status.service';
-import { MinTenemStyleService } from '../../../../src/app/services/style/wms/min-tenem-style.service';
+import { MinTenemStyleService } from '../style/wms/min-tenem-style.service';
 
 
 /**
