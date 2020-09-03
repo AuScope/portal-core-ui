@@ -1,5 +1,6 @@
 import {RenderStatusService} from './renderstatus/render-status.service';
 import {Constants} from '../../utility/constants.service';
+import { UtilitiesService } from '../../utility/utilities.service';
 import {Injectable , Inject} from '@angular/core';
 import olMap from 'ol/Map';
 import olTile from 'ol/layer/Tile';
@@ -194,7 +195,9 @@ public addGeocoderToMap() {
     }
     // LJ:skip the polygon search for getFeatureInfo.
     if (layer.sldBody && layer.sldBody.indexOf('<ogc:Intersects>') >= 0)  {
-      layer.sldBody = '';
+      // RA: but retain the other filters
+      const polygonFilter = UtilitiesService.getPolygonFilter(layer.sldBody);
+      layer.sldBody = layer.sldBody.replace(polygonFilter, "");
     }
     this.activeLayer[id].push(layer);
 

@@ -516,5 +516,13 @@ export class UtilitiesService {
     public static isGSKY(onlineResource: OnlineResourceModel) {
         return (onlineResource.applicationProfile && onlineResource.applicationProfile.indexOf('GSKY') > -1);
     }
+    
+    /**
+     * Returns a polygon filter out of a filter (usually in an SLD body).
+     * @param filter The full filter
+     */
+    public static getPolygonFilter(filter: string) {
+        return filter.slice( filter.indexOf('<ogc:Intersects>') , filter.indexOf('</ogc:Intersects>') + '</ogc:Intersects>'.length);      
+    }
 
 }
