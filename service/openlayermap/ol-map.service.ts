@@ -7,7 +7,7 @@ import olFeature from 'ol/Feature';
 import * as olProj from 'ol/proj';
 import {BehaviorSubject,  Subject } from 'rxjs';
 import { point } from '@turf/helpers';
-import inside from '@turf/inside';
+import booleanPointInPolygon from '@turf/boolean-point-in-polygon';
 import bboxPolygon from '@turf/bbox-polygon';
 import { BBox } from '@turf/helpers';
 import { LayerModel } from '../../model/data/layer.model';
@@ -78,7 +78,7 @@ export class OlMapService {
                            }
                            const bbox = activeLayer.onlineResource.geographicElements[0];
                            const poly = bboxPolygon([bbox.eastBoundLongitude, bbox.southBoundLatitude, bbox.westBoundLongitude, bbox.northBoundLatitude]);
-                           if (inside(clickPoint, poly) && !clickedLayerList.includes(activeLayer)) {
+                           if (booleanPointInPolygon(clickPoint, poly) && !clickedLayerList.includes(activeLayer)) {
                              // Add to list of clicked layers
                              clickedLayerList.push(activeLayer);
                            }
