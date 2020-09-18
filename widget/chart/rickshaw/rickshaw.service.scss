@@ -25,7 +25,7 @@
     height: 300px;
     width: 100px;
 	display: inline-block;
-	top: 30px;
+	top: -232px;
 }
 
 #rickshawChart_outer [id^=content_] [id^=x_axis_] {
@@ -38,7 +38,8 @@
 
 #rickshawChart_outer [id^=content_] [id^=x_axis_] {
 	position: relative;
-	left: 105px;
+    left: 100px;
+    top: -132px;
 }
 
 #rickshawChart_outer [id^=content_] [id^=left_side_panel_] {
@@ -67,6 +68,11 @@
     position: relative;
 	left: 325px;
 	width:500px
+}
+
+#rickshawChart_outer hr {
+    margin-top: 0;
+    margin-bottom: 2rem;
 }
 
 .rickshaw_legend {
